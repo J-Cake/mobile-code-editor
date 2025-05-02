@@ -7,12 +7,6 @@ export interface Settings {
     excludeFiles: (string | RegExp)[]
 }
 
-export interface State {
-    viewport: Viewport;
-    directory: FileSystemDirectoryHandle | null,
-    settings: Settings
-}
-
 export interface Viewport {
     openEditors: Record<EditorId, Editor>
 }
@@ -33,12 +27,21 @@ interface CustomEventTarget {
     'state-loaded': State,
     'state-changed': State,
     'edit-list-changed': Editor[],
+    'open-project': FileSystemDirectoryHandle,
     'close-project': void,
+}
+
+export interface State {
+    viewport: Viewport;
+    directory: FileSystemDirectoryHandle | null,
+    observer: ChangeNotifier | null,
+    settings: Settings
 }
 
 export default new class GlobalState extends EventTarget {
     #state: State = {
         directory: null,
+        observer: null,
         viewport: {
             openEditors: {}
         },
@@ -147,7 +150,16 @@ export default new class GlobalState extends EventTarget {
         this.#emit('request-open', editor);
         this.#emit('edit-list-changed', Object.values(this.#state.viewport.openEditors));
     }
-    
+
+    public openProject(dir: FileSystemDirectoryHandle) {
+        this.mutateState(state => {
+            state.directory = dir;
+            state.observer = new ChangeNotifier(dir);
+        });
+
+        this.#emit('open-project', dir);
+    }
+
     public closeProject() {
         this.mutateState(state => {
             state.directory = null;
@@ -165,10 +177,42 @@ export default new class GlobalState extends EventTarget {
     }
 }
 
-function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
     let timeout: ReturnType<typeof setTimeout> | null = null;
     return function (this: any, ...args: any[]) {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(() => fn.apply(this, args), delay);
     } as T;
+}
+
+export class ChangeNotifier {
+    #watchers: {
+        file: FileSystemFileHandle,
+        callback: () => void
+    }[] = [];
+
+    #observer: FileSystemObserver;
+
+    constructor(dir: FileSystemDirectoryHandle) {
+        const observer = this.#observer = new FileSystemObserver(results => {
+            for (const record of results)
+                if (record.changedHandle instanceof FileSystemFileHandle)
+                    for (const file of this.#watchers)
+                        if (file.file == record.changedHandle)
+                            file.callback();
+        });
+
+        console.log(observer);
+
+        observer.observe(dir, { recursive: true });
+    }
+
+    public watch(file: FileSystemFileHandle, callback: () => void) {
+        this.#watchers.push({ file, callback })
+    }
+
+    public stopWatching(file: FileSystemFileHandle) {
+        for (let index = this.#watchers.findIndex(i => i.file == file); index > -1; index = this.#watchers.findIndex(i => i.file == file))
+            this.#watchers.splice(index, 1);
+    }
 }

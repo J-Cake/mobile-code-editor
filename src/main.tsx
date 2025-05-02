@@ -43,7 +43,7 @@ export default function App() {
             <Button icon={"\uED58"}
                     variant={"primary"}
                     onActivate={() => window.showDirectoryPicker()
-                        .then(dir => state.pushState({directory: dir}))}>
+                        .then(dir => state.openProject(dir))}>
                 {"Open Project"}
             </Button>
         </CentreLayout>
