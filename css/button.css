@@ -39,12 +39,15 @@ button.tertiary {
 
 button.success {
     background: var(--green);
+    color: var(--foreground);
 }
 
 button.warning {
-    background: var(--yellow);
+    background: var(--orange);
+    color: var(--foreground);
 }
 
 button.danger {
     background: var(--red);
+    color: var(--foreground);
 }

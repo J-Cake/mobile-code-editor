@@ -1,0 +1,48 @@
+.file-tree :is(ul, li, summary, .file-tree-directory) {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.file-tree, .file-tree-contents {
+    display: flex;
+    flex-direction: column;
+
+    align-items: stretch;
+
+    flex: 1;
+    --depth: 0;
+}
+
+.file-tree-directory .file-tree-directory-entry {
+    display: block;
+    padding: var(--spacing-xs) var(--spacing-s);
+}
+
+.file-tree-directory .file-tree-directory-entry:hover {
+    background: var(--accent);
+    color: var(--foreground-accent);
+}
+
+.file-tree-directory .file-tree-directory-entry:before {
+    content: attr(data-icon);
+    font: var(--icon);
+    font-size: var(--font-size-s);
+    padding-inline: var(--spacing-xs);
+}
+
+.file-tree-directory details:open > summary.file-tree-directory-entry:before {
+    content: attr(data-icon-open);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-tree-directory .file-tree-directory-entry {
+    padding-inline-start: calc(var(--depth) * var(--spacing-l)) !important;
+}
+
+.file-tree-directory span.file-tree-directory-entry {
+    padding-inline-start: calc((var(--depth) + 1) * var(--spacing-l)) !important;
+}

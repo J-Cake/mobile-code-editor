@@ -1,21 +1,22 @@
 import * as React from "react";
 import * as cm from 'codemirror';
 import * as cm_state from '@codemirror/state';
+import {javascript} from "@codemirror/lang-javascript";
 
 import {Editor} from "./state.js";
 
 import style from "@css/text-editor.css?raw";
 
 export default class TextEditor implements Editor {
-    public get title(): string {
-        return 'Untitled';
+    view: cm.EditorView | null = null;
+
+    constructor(private file: FileSystemFileHandle) {
+
     }
 
-    source: string = '';
-    state: cm_state.EditorState = cm_state.EditorState.create({
-        doc: this.source,
-        extensions: [cm.basicSetup]
-    });
+    public get title(): string {
+        return this.file.name;
+    }
 
     async beforeClose(): Promise<void> {
         await this.save();
@@ -29,16 +30,22 @@ export default class TextEditor implements Editor {
         const ref = React.useRef<HTMLDivElement>(null);
 
         React.useEffect(() => {
-            if (!ref.current)
-                return;
+            this.file.getFile()
+                .then(file => file.text())
+                .then(file => {
+                    this.view = new cm.EditorView({
+                        parent: ref.current!,
+                        state: cm_state.EditorState.create({
+                            doc: file,
+                            extensions: [cm.basicSetup, javascript()]
+                        })
+                    });
 
-            const editor = new cm.EditorView({
-                state: this.state,
-                parent: ref.current
-            });
+                    ref.current?.focus();
+                });
 
-            return () => editor.destroy();
-        }, [ref.current]);
+            return () => this.view?.destroy();
+        }, []);
 
         return <div className={"text-editor"}>
             <style scoped>{style}</style>

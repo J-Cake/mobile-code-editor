@@ -74,7 +74,7 @@
     --font-monospace: "Inconsolata", "Source Sans Pro", consolas, monospace;
     --font-icon: "remixicon", sans-serif;
 
-    --editor-font: var(--font-size-l) var(--font-monospace);
+    --editor-font: var(--font-size-s) var(--font-monospace);
 
     --font-xxs: var(--font-size-xxs) var(--font);
     --font-xxs-bold: bold var(--font-size-xxs) var(--font);
@@ -117,6 +117,7 @@
     --green: #07c165;
     --blue: #0b87b3;
     --yellow: #e6c801;
+    --orange: #e67701;
 
     --border-simple: var(--spacing-xxs) solid var(--foreground-03);
     --border-dull: 1px solid var(--foreground-05);

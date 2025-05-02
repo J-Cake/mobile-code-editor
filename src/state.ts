@@ -3,28 +3,49 @@ import * as idb from 'idb';
 
 import TextEditor from "./text-editor.js";
 
+export interface Settings {
+    excludeFiles: (string | RegExp)[]
+}
+
 export interface State {
     viewport: Viewport;
     directory: FileSystemDirectoryHandle | null,
+    settings: Settings
 }
 
 export interface Viewport {
-    openEditors: Editor[]
+    openEditors: Record<EditorId, Editor>
 }
 
+type EditorId = string;
+
 export interface Editor<T = any> {
-    source: string,
     title: string,
+
     render(this: Editor<T>): React.ReactNode;
 
     beforeClose(this: Editor<T>): void | Promise<void>;
+}
+
+interface CustomEventTarget {
+    'request-open': Editor,
+    'request-close': Editor
+    'state-loaded': State,
+    'state-changed': State,
+    'edit-list-changed': Editor[],
+    'close-project': void,
 }
 
 export default new class GlobalState extends EventTarget {
     #state: State = {
         directory: null,
         viewport: {
-            openEditors: []
+            openEditors: {}
+        },
+        settings: {
+            excludeFiles: [
+                /\/\./
+            ]
         }
     }
 
@@ -38,7 +59,7 @@ export default new class GlobalState extends EventTarget {
             if (this.#dbHandle)
                 await this.#dbHandle.put('state', this.#state, 'app-state');
             else
-                this.addEventListener('state-loaded', () => this.#save(), { once: true });
+                this.on('state-loaded', () => this.#save(), {once: true});
         }, 2000);
     }
 
@@ -47,7 +68,7 @@ export default new class GlobalState extends EventTarget {
             upgrade(db) {
                 if (!db.objectStoreNames.contains('state'))
                     db.createObjectStore('state');
-            }
+            },
         });
 
         this.#dbHandle = db;
@@ -59,6 +80,10 @@ export default new class GlobalState extends EventTarget {
     }
 
     readonly #save: () => void;
+
+    get nextEditorId(): EditorId {
+        return Object.keys(this.#state.viewport.openEditors).length.toString();
+    }
 
     public pushState(state: Partial<State> | ((state: State) => Partial<State>)) {
         // const prev = deepClone(this.#state);
@@ -75,21 +100,20 @@ export default new class GlobalState extends EventTarget {
             };
 
         this.#save();
-        this.#emit('state-change', this.#state);
+        this.#emit('state-changed', this.#state);
         // TODO implement state change hooks
     }
-    
+
     public mutateState(mut: (state: State) => void): void {
-        // const prev = deepClone(this.#state);
         mut(this.#state);
         this.#save();
-        this.#emit('state-change', this.#state);
+        this.#emit('state-changed', this.#state);
     }
 
     public useMask<T>(callback: (state: State) => T): T {
         const [mask, setMask] = React.useState(callback(this.#state));
 
-        this.addEventListener('state-change', e => {
+        this.on('state-changed', e => {
             if (e instanceof CustomEvent)
                 setMask(callback(e.detail));
         });
@@ -99,30 +123,47 @@ export default new class GlobalState extends EventTarget {
 
     public requestClose(editor: Editor) {
         const remove = () => this.mutateState(state => {
-            state.viewport.openEditors.splice(state.viewport.openEditors.indexOf(editor), 1);
+            const id = Object.entries(state.viewport.openEditors).find(([id, ed]) => ed === editor)?.[0];
+            if (id)
+                delete state.viewport.openEditors[id];
         });
 
-        const before = editor.beforeClose?.call(editor);
+        Promise.resolve(editor.beforeClose?.call(editor))
+            .then(remove)
+            .then(() => {
+                this.#emit('request-close', editor);
+                this.#emit('edit-list-changed', Object.values(this.#state.viewport.openEditors));
+            });
 
-        if (this.#state.viewport.openEditors.includes(editor)) {
-            if (before instanceof Promise)
-                before.then(remove);
-            else
-                remove();
-
-        }
     }
 
-    #emit(event: string, data: any) {
-        this.dispatchEvent(new CustomEvent(String(event), { detail: data }));
+    public requestOpen(file: FileSystemFileHandle) {
+        const editor = new TextEditor(file);
+
+        this.mutateState(state => {
+            state.viewport.openEditors[this.nextEditorId] = editor;
+        });
+
+        this.#emit('request-open', editor);
+        this.#emit('edit-list-changed', Object.values(this.#state.viewport.openEditors));
+    }
+    
+    public closeProject() {
+        this.mutateState(state => {
+            state.directory = null;
+        });
+
+        this.#emit('close-project');
+    }
+
+    #emit<Event extends keyof CustomEventTarget>(event: Event, data?: CustomEventTarget[Event]) {
+        this.dispatchEvent(new CustomEvent(String(event), {detail: data}));
+    }
+
+    public on<K extends keyof CustomEventTarget>(type: K, callback: (event: CustomEvent<CustomEventTarget[K]>) => void, options?: AddEventListenerOptions) {
+        this.addEventListener(type, callback as EventListener, options);
     }
 }
-
-const deepClone = <T extends object>(obj: T): T => Object.fromEntries(Object.entries(obj)
-    .map(([k, v]) => [
-        k,
-        v && (typeof v === 'object' ? Object.assign(deepClone(v), { __proto: v.__proto }) : v)
-    ] as const)) as T;
 
 function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
     let timeout: ReturnType<typeof setTimeout> | null = null;
