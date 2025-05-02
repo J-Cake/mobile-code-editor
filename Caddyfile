@@ -1,0 +1,9 @@
+https://es03 {
+    root build
+
+    file_server {
+        browse true
+    }
+
+    tls internal
+}

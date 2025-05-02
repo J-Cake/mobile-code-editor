@@ -1,0 +1,50 @@
+button {
+    padding: var(--spacing-xs) var(--spacing-s);
+    cursor: pointer;
+
+    border: none;
+
+    display: block;
+}
+
+button:disabled {
+    opacity: 0.5;
+    filter: brightness(var(--delta));
+}
+
+button:hover {
+    filter: brightness(var(--delta));
+}
+
+button:before {
+    content: attr(data-icon);
+    font: var(--icon);
+    font-size: var(--font-size-s);
+}
+
+button.primary {
+    background: var(--accent);
+    color: var(--foreground-accent);
+}
+
+button, button.secondary {
+    background: var(--background-02);
+    color: var(--accent);
+}
+
+button.tertiary {
+    background: transparent;
+    color: var(--accent);
+}
+
+button.success {
+    background: var(--green);
+}
+
+button.warning {
+    background: var(--yellow);
+}
+
+button.danger {
+    background: var(--red);
+}
