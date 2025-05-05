@@ -1,7 +1,7 @@
 import React from 'react';
 import * as DOM from 'react-dom/client';
 
-import state, {GlobalState, State} from './state.js';
+import mgr, {GlobalState, State} from './state.js';
 import Button from "./widgets/button.js";
 import CentreLayout from "./layouts/centre-layout.js";
 
@@ -19,34 +19,61 @@ root.render(<CentreLayout>
 </CentreLayout>);
 
 interface NewWindow {
-    getStateManager(): GlobalState
+    getStateManager(): GlobalState,
+    actionMenu: ContextMenu
 }
 
 declare var window: NewWindow & typeof globalThis;
 
-state.on('state-loaded', () => {
-    window.getStateManager = () => state;
+class ActionMenu extends ContextMenu {
+    constructor() {
+        super();
 
-    state.registerCommand({
+        mgr.mutate(state => {
+            for (const cmd in state.commands.registered)
+                this.addOption({ command: cmd });
+        });
+
+        this.header('All commands');
+        super.show();
+        this.minimise();
+    }
+
+    containerFactory(): HTMLDialogElement {
+        const container = super.containerFactory();
+        container.classList.add('minimised');
+        return container;
+    }
+
+    show() {
+        this.root?.showPopover();
+    }
+
+    close() {
+        this.minimise();
+    }
+}
+
+mgr.on('state-loaded', ({ detail: state }) => {
+    window.getStateManager = () => mgr;
+
+    window.actionMenu = new ActionMenu();
+
+    mgr.registerCommand({
         display: 'Display all commands',
         id: 'command-bar',
         icon: '\uF1F8',
         shortcut: 'ctrl+p',
         run(mgr) {
-            mgr.mutate(state => Object.keys(state.commands.registered)
-                .reduce((a, i) => a.addOption({ command: i }), new ContextMenu())
-                .header('All commands')
-                .show());
+            window.actionMenu.show();
         },
     });
-
-    state.dispatchCommand('command-bar');
 
     root.render(<App/>);
 });
 
 export default function App() {
-    const directory = state.useMask(state => state.directory);
+    const directory = mgr.useMask(state => state.directory);
 
     if (directory)
         return <>
@@ -62,7 +89,7 @@ export default function App() {
             <Button icon={"\uED58"}
                     variant={"primary"}
                     onActivate={() => window.showDirectoryPicker()
-                        .then(dir => state.openProject(dir))}>
+                        .then(dir => mgr.openProject(dir))}>
                 {"Open Project"}
             </Button>
         </CentreLayout>;
@@ -71,7 +98,7 @@ export default function App() {
 export function LeftSidebar() {
     const [sidebar, setSidebar] = React.useState(false);
 
-    state.on('edit-list-changed', () => setSidebar(false));
+    mgr.on('edit-list-changed', () => setSidebar(false));
 
     return <>
         <section className={`sidebar-left ${sidebar ? 'visible' : ''}`}>

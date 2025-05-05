@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as idb from 'idb';
+import mousetrap from 'mousetrap';
 
 import {RequestOpenEvent} from "./file-tree.js";
 import {Editor, EditorList, OpenEvent, Viewport} from "./viewport.js";
 import Plugin from "./plugin.js";
 import OpenAsText from "./plugins/open-as-text.js";
 import {SettingsPlugin} from "./plugins/settings.js";
-import mousetrap from "mousetrap";
 import Build from "./plugins/build.js";
 
 export interface Settings {

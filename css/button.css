@@ -1,10 +1,14 @@
 button {
-    padding: var(--spacing-s) var(--spacing-m);
+    padding: var(--spacing-m) var(--spacing-l);
     cursor: pointer;
 
     border: none;
 
-    display: block;
+    display: flex;
+    gap: var(--spacing-m);
+
+    text-align: center;
+    justify-content: center;
 
     border-radius: var(--radius-s);
     box-shadow: var(--shadow-l);
@@ -22,8 +26,7 @@ button:hover {
 button:before {
     content: attr(data-icon);
     font: var(--icon);
-    font-size: var(--font-size-s);
-    margin-inline-end: var(--spacing-xs);
+    font-size: var(--font-size-m);
 }
 
 button.primary {

@@ -2,35 +2,92 @@ import * as React from 'react';
 import * as dom from 'react-dom/client';
 
 import style from "@css/popup.css?raw";
-import {ReactNode} from "react";
 
 export default class Modal extends EventTarget {
     renderer?: dom.Root;
     root?: HTMLDialogElement;
-    minimised: boolean = false;
 
-    #header?: ReactNode;
+    #header?: React.ReactNode;
 
     containerFactory(): HTMLDialogElement {
-        return document.querySelector('#modals')!
+        const el = document.querySelector('#modals')!
             .appendChild(document.createElement('dialog'));
+
+        el.setAttribute('popover', 'auto');
+
+        // if (this.minimised)
+        //     el.classList.add('minimised');
+
+        return el;
     }
 
     public show(children: React.ReactNode) {
         const modal = this.root = this.containerFactory();
 
         this.on('minimise', ({detail: isMinimised}: CustomEvent<boolean>) => {
-            if (isMinimised)
+            if (isMinimised) {
                 modal.classList.add('minimised');
-            else
+                modal.hidePopover();
+            } else {
                 modal.classList.remove('minimised');
+                modal.showPopover();
+            }
         });
 
         modal.classList.add('modal');
 
-        modal.addEventListener('click', e => {
-            if (e.target == modal)
+        modal.addEventListener('toggle', e => {
+            if (e instanceof ToggleEvent && e.newState == 'closed')
                 this.close();
+            else if (e instanceof ToggleEvent && e.newState == 'open') {
+                modal.classList.remove('minimised');
+                this.dispatchEvent(new CustomEvent('reveal'));
+            }
+        });
+
+        let gesture: ({ start: null } | {
+            start: number,
+            scrollSamples: number,
+            distance: number,
+            scrollEvents: boolean,
+            startedOnFrame: boolean
+        }) = {start: null};
+        modal.addEventListener('touchstart', function (this: Modal, e: TouchEvent) {
+            gesture = {
+                start: e.changedTouches[0].clientY,
+                distance: 0,
+                scrollSamples: 0,
+                scrollEvents: false,
+                startedOnFrame: e.target == modal
+            };
+        }.bind(this), {passive: true});
+        modal.addEventListener('touchmove', function (this: Modal, e: TouchEvent) {
+            if (typeof gesture.start == 'number')
+                gesture.scrollSamples++;
+
+            if (typeof gesture.start == 'number' && !gesture.scrollEvents && (gesture.startedOnFrame || gesture.scrollSamples > 3)) {
+                gesture.distance = e.changedTouches[0].clientY - gesture.start;
+
+                if (modal.classList.contains('minimised'))
+                    modal.style.setProperty('transform', `translateY(${gesture.distance}px)`);
+                else
+                    modal.style.setProperty('transform', `translateY(calc(${gesture.distance}px - 100%))`);
+            }
+        }.bind(this), {passive: true});
+        modal.addEventListener('touchend', function (this: Modal, e: TouchEvent) {
+            if (typeof gesture.start == 'number')
+                if (gesture.distance > 50)
+                    this.minimise();
+                else if (gesture.distance < -50)
+                    this.root?.showPopover();
+
+            Object.assign(gesture, {start: null});
+
+            modal.style.removeProperty('transform');
+        }.bind(this), {passive: true});
+        modal.addEventListener('scroll', function () {
+            if (typeof gesture.start == 'number')
+                gesture.scrollEvents = true;
         })
 
         this.renderer = dom.createRoot(modal);
@@ -43,7 +100,7 @@ export default class Modal extends EventTarget {
             {children}
         </>);
 
-        modal.showModal();
+        modal.showPopover();
     }
 
     on(event: 'minimise', callback: (this: Modal, e: CustomEvent<boolean>) => void, options?: AddEventListenerOptions): void {
@@ -56,12 +113,12 @@ export default class Modal extends EventTarget {
     }
 
     minimise() {
-        this.dispatchEvent(new CustomEvent('minimise', {detail: this.minimised = true}));
+        this.dispatchEvent(new CustomEvent('minimise', {detail: true}));
     }
 
     close() {
         this.root?.animate([
-            { transform: 'translateY(0)' },
+            {transform: 'translateY(0)'},
         ], {
             duration: 100,
             iterations: 1,
@@ -71,6 +128,6 @@ export default class Modal extends EventTarget {
             this.root?.remove()
             this.renderer?.unmount();
             this.dispatchEvent(new Event('close'));
-        })
+        });
     }
 }

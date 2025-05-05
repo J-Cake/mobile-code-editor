@@ -49,8 +49,20 @@
     align-items: center;
 }
 
+@property --radius {
+    syntax: "<length>";
+    initial-value: 0;
+    inherits: false;
+}
+
+@property --drag-shift {
+    syntax: "<length>";
+    initial-value: 0;
+    inherits: true;
+}
+
 @media screen and (max-width: 500px) {
-    .context-menu, .modal {
+    .modal {
         position: fixed;
 
         box-sizing: border-box;
@@ -60,35 +72,31 @@
 
         width: 100%;
         top: 100%;
+        bottom: 0;
         margin: 0;
         padding: var(--spacing-m);
         max-width: unset;
         max-height: min(90vh, var(--element-l));
 
-        animation: enter 0.1s;
-        animation-fill-mode: forwards;
+        --radius: var(--radius-l);
 
-        border-top-left-radius: var(--radius-l);
-        border-top-right-radius: var(--radius-l);
+        border-top-left-radius: var(--radius);
+        border-top-right-radius: var(--radius);
+
+        touch-action: pan-y
     }
 
-    @keyframes enter {
-        from {
-            transform: translateY(0);
-        }
-        to {
-            transform: translateY(-100%);
-        }
+    .modal:not(.minimised) {
+        transform: translateY(-100%);
     }
 
     .modal.minimised {
-        top: 100%;
-        transform: translateY(calc(0 - var(--spacing-l)));
+        top: calc(100% - var(--spacing-l));
+        --radius: 0;
     }
 
-    .context-menu::backdrop, .modal::backdrop {
+    .modal::backdrop {
         backdrop-filter: blur(var(--spacing-xxs)) brightness(80%);
-
     }
 
     .context-menu:before, .modal:before {
@@ -96,7 +104,7 @@
 
         position: sticky;
 
-        background: var(--background-03);
+        background: var(--background-04);
         width: var(--spacing-l);
         height: var(--spacing-xxs);
 
@@ -113,7 +121,7 @@
         grid-template-rows: auto auto;
         grid-auto-rows: 1fr;
 
-        grid-gap: var(--spacing-s);
+        grid-gap: var(--spacing-m);
 
         align-items: center;
     }
@@ -122,6 +130,7 @@
         grid-column: 1 / -1;
         grid-row: 1;
     }
+
     .context-menu .header {
         grid-column: 1 / -1;
         grid-row: 2;

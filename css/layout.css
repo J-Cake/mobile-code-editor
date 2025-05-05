@@ -64,7 +64,7 @@
     justify-content: flex-start;
     align-items: center;
 
-    background: var(--background-02);
+    border-bottom: var(--border-dull);
 
     overflow-x: auto;
 }

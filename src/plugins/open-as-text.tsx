@@ -10,6 +10,7 @@ export default class OpenAsText extends Plugin {
         mgr.registerCommand({
             display: "View project files",
             id: "project-files",
+            shortcut: 'shift shift',
             icon: '\uED6A',
             run(state: GlobalState, payload?: any) {
                 new Modal()
