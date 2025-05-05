@@ -1,0 +1,40 @@
+.build-gui {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+
+    grid-template-areas:
+        "heading heading"
+        "steps   steps"
+        "buttons buttons";
+
+    position: relative;
+}
+
+.build-gui > h1 {
+    grid-area: heading;
+}
+
+.build-gui > .build-commands {
+    grid-area: steps;
+
+    overflow: auto;
+}
+
+.build-gui > .floating-buttons {
+    position: fixed;
+
+    bottom: var(--spacing-l);
+    right: var(--spacing-l);
+}
+
+.build-gui > .floating-buttons > button {
+    width: var(--spacing-xxl);
+    height: var(--spacing-xxl);
+    font-size: var(--font-size-xxl);
+}
+
+.build-gui > .floating-buttons > button:before {
+    font-size: var(--font-size-xl);
+}

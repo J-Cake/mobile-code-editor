@@ -5,6 +5,7 @@ import If from "./widgets/if.js";
 
 import style from "@css/file-tree.css?raw";
 import Button from "./widgets/button.js";
+import TextEditor from "./text-editor.js";
 
 export const icons = {
     defaultFolder: '\uED54',
@@ -74,7 +75,7 @@ export function Directory(props: { parent: string, dir: FileSystemDirectoryHandl
                         <span className={"file-tree-directory-entry"}
                               data-icon={icons[props.dir.name.split('.').pop()!.toLowerCase() as keyof typeof icons] ?? icons.defaultFile}
                               tabIndex={0}
-                              onClick={() => state.requestOpen(entry)}>
+                              onClick={() => requestOpen(entry)}>
                             {entry.name}
                         </span>}
                 </li>),
@@ -82,4 +83,26 @@ export function Directory(props: { parent: string, dir: FileSystemDirectoryHandl
             }}</If>
         </ul>
     </details>
+}
+
+export function requestOpen(entry: FileSystemFileHandle) {
+    const requestOpenEvent = new RequestOpenEvent(entry);
+
+    if (state.dispatchEvent(requestOpenEvent))
+        console.warn(`File of type ${entry.name.split('.').pop()!.toLowerCase()} cannot be opened.`);
+
+    // const editor = new TextEditor(entry);
+    //
+    // this.mutateState(state => {
+    //     state.viewport.openEditors[this.nextEditorId] = editor;
+    // });
+    //
+    // this.#emit('request-open', editor);
+    // this.#emit('edit-list-changed', Object.values(this.#state.viewport.openEditors));
+}
+
+export class RequestOpenEvent extends Event {
+    constructor(public file: FileSystemFileHandle) {
+        super('request-open', { cancelable: true });
+    }
 }

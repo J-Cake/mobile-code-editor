@@ -1,9 +1,13 @@
 import * as React from 'react';
 import * as dom from 'react-dom/client';
 
+import { Command } from '../state.js';
+import style from "@css/popup.css?raw";
+import Cmd from './command.js';
+
 export default class ContextMenu {
-    private options: Array<MenuOption | ContextMenu | 'separator'> = [];
-    public addOption(option: MenuOption): ContextMenu {
+    private options: Array<MenuOption | { command: Command['id'] } | ContextMenu | 'separator'> = [];
+    public addOption(option: MenuOption | { command: Command['id'] }): ContextMenu {
         this.options.push(option);
         return this;
     }
@@ -22,19 +26,29 @@ export default class ContextMenu {
         const modal = document.querySelector('#modals')!
             .appendChild(document.createElement('dialog'));
 
+        modal.classList.add('context-menu');
+
         dom.createRoot(modal)
-            .render(<ul>
-                {this.options.map(option => {
+            .render(<>
+                <style scoped>{style}</style>
+
+                {this.options.map((option, a) => {
                     if (option === 'separator')
-                        return <li className={"context-menu-separator"} />;
+                        return <div className={"context-menu-item context-menu-separator"} key={`option-${a}`} />;
+                    else if (typeof option == 'object' && 'command' in option)
+                        return <div className={"context-menu-item context-menu-command"}  key={`option-${a}`}>
+                            <Cmd command={option.command} />
+                        </div>;
                     else if (isSubmenu(option))
-                        return <li className={"context-menu-submenu"} data-icon={option.icon}>{option.label}</li>;
+                        return <div className={"context-menu-item context-menu-submenu"} data-icon={option.icon} key={`option-${a}`}>{option.label}</div>;
                     else if (isMenu(option))
-                        return <li className={"context-menu-option"} data-icon={option.icon ?? ''}>
+                        return <div className={"context-menu-item context-menu-option"} data-icon={option.icon ?? ''} key={`option-${a}`}>
                             {option.label}
-                        </li>;
+                        </div>;
                 })}
-            </ul>);
+            </>);
+
+        modal.showModal();
     }
 }
 

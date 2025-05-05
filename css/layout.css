@@ -1,9 +1,16 @@
 #root > .left-button {
-    grid-area: left-button;
+    left: 0;
 }
 
 #root > .right-button {
-    grid-area: right-button;
+    right: 0;
+}
+
+#root > .left-button, #root > .right-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
 }
 
 #root > .sidebar-left, #root > .sidebar-right {

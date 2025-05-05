@@ -4,23 +4,22 @@ import * as cm_view from '@codemirror/view';
 import * as cm_state from '@codemirror/state';
 import {javascript} from "@codemirror/lang-javascript";
 
-import state, {debounce, Editor} from "./state.js";
+import state, {ChangeNotifier, Cloneable, debounce, fromPersistent, SerialisedObject, toPersistent} from "./state.js";
+import { Editor } from "./viewport.js";
 
 import style from "@css/text-editor.css?raw";
 
-export default class TextEditor implements Editor {
+export default class TextEditor implements Editor, Cloneable {
     view: cm.EditorView | null = null;
 
     constructor(private file: FileSystemFileHandle) {
         state.pushState(state => {
-            console.log(state.observer);
-            state.observer?.watch(this.file, async () => {
-                console.log('File changed, reloading...');
-
-                return void this.view?.setState(cm_state.EditorState.create({
-                    doc: await this.file.getFile().then(file => file.text()),
-                }));
-            });
+            if (state.observer instanceof ChangeNotifier)
+                state.observer.watch(this.file, async () => {
+                    return void this.view?.setState(cm_state.EditorState.create({
+                        doc: await this.file.getFile().then(file => file.text()),
+                    }));
+                });
 
             return {};
         })
@@ -34,6 +33,16 @@ export default class TextEditor implements Editor {
         }, 2000);
     }
 
+    [toPersistent](): SerialisedObject<FileSystemFileHandle, TextEditor> {
+        return {
+            data: this.file,
+            [fromPersistent](file: FileSystemFileHandle): TextEditor {
+                return new TextEditor(file);
+            }
+        }
+    }
+
+
     public get title(): string {
         return this.file.name;
     }
@@ -41,7 +50,8 @@ export default class TextEditor implements Editor {
     async beforeClose(): Promise<void> {
         await this.save();
         state.pushState(state => {
-            state.observer?.stopWatching(this.file);
+            if (state.observer instanceof ChangeNotifier)
+                state.observer.stopWatching(this.file);
 
             return {};
         })

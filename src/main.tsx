@@ -1,7 +1,7 @@
 import React from 'react';
 import * as DOM from 'react-dom/client';
 
-import state from './state.js';
+import state, {GlobalState, State} from './state.js';
 import Button from "./widgets/button.js";
 import CentreLayout from "./layouts/centre-layout.js";
 
@@ -9,6 +9,7 @@ import FileTree from "./file-tree.js";
 import Viewport from './viewport.js';
 
 import '@css/main.css';
+import Modal from './widgets/modal.js';
 
 export const root = DOM.createRoot(document.querySelector('#root')!);
 
@@ -16,22 +17,37 @@ root.render(<CentreLayout>
     <p>{"Loading..."}</p>
 </CentreLayout>);
 
-state.on('state-loaded', () => root.render(<App/>));
+interface NewWindow {
+    getStateManager(): GlobalState
+}
+
+declare var window: NewWindow & typeof globalThis;
+
+state.on('state-loaded', () => {
+    window.getStateManager = () => state;
+
+    state.registerCommand({
+        display: 'View files',
+        id: 'view-files',
+        shortcut: 'ctrl+alt+f',
+        run() {
+            new Modal()
+                .show(<>
+                    <h1>{"Project files"}</h1>
+                    <FileTree />
+                </>);
+        },
+    });
+
+    root.render(<App/>);
+});
 
 export default function App() {
     const directory = state.useMask(state => state.directory);
-    const [sidebar, setSidebar] = React.useState({
-        left: false,
-        right: false
-    });
 
     if (directory)
         return <>
-            <LeftSidebar/>
-
             <Viewport/>
-
-            <RightSidebar />
 
             <section className={"sidebar-statusbar"}>
 
@@ -46,7 +62,7 @@ export default function App() {
                         .then(dir => state.openProject(dir))}>
                 {"Open Project"}
             </Button>
-        </CentreLayout>
+        </CentreLayout>;
 }
 
 export function LeftSidebar() {

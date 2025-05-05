@@ -28,9 +28,9 @@
     grid-template-rows: var(--spacing-xl) 1fr auto;
 
     grid-template-areas:
-        "left-sidebar left-button tab-list  right-button right-sidebar"
-        "left-sidebar content     content   content      right-sidebar"
-        "left-sidebar statusbar   statusbar statusbar    right-sidebar";
+        "left-sidebar tab-list  tab-list  tab-list  right-sidebar"
+        "left-sidebar content   content   content   right-sidebar"
+        "left-sidebar statusbar statusbar statusbar right-sidebar";
 
     min-width: 100vw;
     min-height: 100vh;

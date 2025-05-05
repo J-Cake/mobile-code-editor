@@ -1,66 +1,142 @@
 import * as React from 'react';
 import * as idb from 'idb';
 
-import TextEditor from "./text-editor.js";
+import {RequestOpenEvent} from "./file-tree.js";
+import {Editor, EditorList, OpenEvent, Viewport} from "./viewport.js";
+import Plugin from "./plugin.js";
+import OpenAsText from "./plugins/open-as-text.js";
+import {SettingsPlugin} from "./plugins/settings.js";
+import mousetrap from "mousetrap";
+import Build from "./plugins/build.js";
 
 export interface Settings {
     excludeFiles: (string | RegExp)[]
 }
 
-export interface Viewport {
-    openEditors: Record<EditorId, Editor>
-}
-
-type EditorId = string;
-
-export interface Editor<T = any> {
-    title: string,
-
-    render(this: Editor<T>): React.ReactNode;
-
-    beforeClose(this: Editor<T>): void | Promise<void>;
-}
-
 interface CustomEventTarget {
-    'request-open': Editor,
-    'request-close': Editor
-    'state-loaded': State,
-    'state-changed': State,
-    'edit-list-changed': Editor[],
-    'open-project': FileSystemDirectoryHandle,
-    'close-project': void,
+    'open': OpenEvent,
+    'request-open': RequestOpenEvent,
+    'request-close': CustomEvent<Editor>
+    'state-loaded': CustomEvent<State>,
+    'state-changed': CustomEvent<State>,
+    'edit-list-changed': CustomEvent<EditorList>,
+    'open-project': CustomEvent<FileSystemDirectoryHandle>,
+    'close-project': CustomEvent<void>,
+    'register-command': CustomEvent<Command>,
 }
 
 export interface State {
     viewport: Viewport;
     directory: FileSystemDirectoryHandle | null,
     observer: ChangeNotifier | null,
-    settings: Settings
+    settings: Settings,
+    plugins: Plugin[],
+    commands: {
+        registered: {
+            [id in Command['id']]: Command
+        },
+        keybindings: {
+            [key: string]: Command['id']
+        }
+    }
 }
 
-export default new class GlobalState extends EventTarget {
+export interface Command {
+    display: string,
+    id: string,
+    run: (state: GlobalState, payload?: any) => void,
+    shortcut?: string,
+    icon?: string,
+    description?: string,
+}
+
+export const toPersistent = Symbol.for('serialise');
+export const fromPersistent = Symbol.for('deserialise');
+
+export interface Cloneable<Serialised = any, Self = any> {
+    [toPersistent](seen?: WeakSet<object>): SerialisedObject<Serialised, Self>;
+}
+
+export interface SerialisedObject<Data = any, Self = any> {
+    data: Data,
+    [fromPersistent](data: Data): Self;
+}
+
+const isCloneable = (obj: any): obj is Cloneable => obj && typeof obj[toPersistent] === 'function';
+
+export function serialise(obj: any, seen: WeakSet<object> = new WeakSet<object>()): any {
+    if (seen.has(obj))
+        return;
+
+    let clone: any;
+    if (isCloneable(obj))
+        clone = obj[Symbol.for("serialise") as typeof toPersistent].call(obj, seen);
+    else if (typeof obj === 'object' && obj !== null)
+        clone = Object.create(Object.getPrototypeOf(obj), Object.entries(obj)
+            .reduce((a, [key, value]) => ({
+                ...a,
+                [key]: {
+                    value: serialise(value, seen),
+                    writable: true,
+                    enumerable: true,
+                }
+            }), {}));
+    else
+        clone = obj;
+
+    if (typeof clone === 'object' && clone !== null)
+        seen.add(obj);
+
+    return clone;
+}
+
+export function deserialise(obj: any): any {
+    if (typeof obj == 'object' && obj && fromPersistent in obj)
+        return obj[fromPersistent](obj);
+    else if (typeof obj === 'object' && obj !== null)
+        return Object.create(Object.getPrototypeOf(obj), Object.entries(obj)
+            .reduce((a, [key, value]) => ({
+                ...a,
+                [key]: {
+                    value,
+                    writable: true,
+                    enumerable: true,
+                } satisfies PropertyDescriptor
+            }), {}));
+    else
+        return obj;
+}
+
+export class GlobalState extends EventTarget {
     #state: State = {
         directory: null,
         observer: null,
         viewport: {
-            openEditors: {}
+            openEditors: new EditorList(this)
         },
         settings: {
             excludeFiles: [
                 /\/\./
             ]
+        },
+        plugins: [new OpenAsText, new SettingsPlugin, new Build],
+        commands: {
+            registered: {},
+            keybindings: {}
         }
     }
 
     #dbHandle?: idb.IDBPDatabase;
 
-    constructor() {
+    protected constructor() {
         super();
 
         this.#restore();
         this.#save = debounce(async () => {
             if (this.#dbHandle)
-                await this.#dbHandle.put('state', this.#state, 'app-state');
+                await this.#dbHandle.put('state', {
+                    directory: this.#state.directory,
+                }, 'app-state');
             else
                 this.on('state-loaded', () => this.#save(), {once: true});
         }, 2000);
@@ -78,15 +154,14 @@ export default new class GlobalState extends EventTarget {
 
         const saved = await db.get('state', 'app-state');
 
-        this.#state = saved ?? this.#state;
+        // this.#state = deserialise(saved ?? this.#state);
+        this.#state.directory = saved?.directory ?? null;
+
+        await this.#loadPlugins();
         this.#emit('state-loaded', this.#state);
     }
 
     readonly #save: () => void;
-
-    get nextEditorId(): EditorId {
-        return Object.keys(this.#state.viewport.openEditors).length.toString();
-    }
 
     public pushState(state: Partial<State> | ((state: State) => Partial<State>)) {
         // const prev = deepClone(this.#state);
@@ -107,7 +182,7 @@ export default new class GlobalState extends EventTarget {
         // TODO implement state change hooks
     }
 
-    public mutateState(mut: (state: State) => void): void {
+    public mutate(mut: (state: State) => void): void {
         mut(this.#state);
         this.#save();
         this.#emit('state-changed', this.#state);
@@ -124,56 +199,65 @@ export default new class GlobalState extends EventTarget {
         return mask;
     }
 
-    public requestClose(editor: Editor) {
-        const remove = () => this.mutateState(state => {
-            const id = Object.entries(state.viewport.openEditors).find(([id, ed]) => ed === editor)?.[0];
-            if (id)
-                delete state.viewport.openEditors[id];
-        });
-
-        Promise.resolve(editor.beforeClose?.call(editor))
-            .then(remove)
-            .then(() => {
-                this.#emit('request-close', editor);
-                this.#emit('edit-list-changed', Object.values(this.#state.viewport.openEditors));
-            });
-
-    }
-
-    public requestOpen(file: FileSystemFileHandle) {
-        const editor = new TextEditor(file);
-
-        this.mutateState(state => {
-            state.viewport.openEditors[this.nextEditorId] = editor;
-        });
-
-        this.#emit('request-open', editor);
-        this.#emit('edit-list-changed', Object.values(this.#state.viewport.openEditors));
-    }
-
     public openProject(dir: FileSystemDirectoryHandle) {
-        this.mutateState(state => {
+        this.mutate(state => {
             state.directory = dir;
-            state.observer = new ChangeNotifier(dir);
+            // state.observer = new ChangeNotifier(dir);
         });
 
         this.#emit('open-project', dir);
     }
 
     public closeProject() {
-        this.mutateState(state => {
+        this.mutate(state => {
             state.directory = null;
         });
 
         this.#emit('close-project');
     }
 
-    #emit<Event extends keyof CustomEventTarget>(event: Event, data?: CustomEventTarget[Event]) {
+    public loadPlugin(plugin: Plugin) {
+        this.mutate(state => {
+            state.plugins.push(plugin);
+        });
+    }
+
+    public registerCommand(command: Command) {
+        this.mutate(state => {
+            if (command.id in state.commands.registered)
+                console.warn(`Command with id ${command.id} already registered`);
+
+            state.commands.registered[command.id] = command;
+
+            if (!command.shortcut)
+                return;
+
+            const shortcuts = Object.keys(state.commands.keybindings)
+                .filter(key => state.commands.keybindings[key] == command.id);
+
+            if (shortcuts.length <= 0 && command.shortcut)
+                shortcuts.push(command.shortcut);
+
+            mousetrap.bind(shortcuts, () => command.run(this));
+        });
+
+        this.#emit('register-command', command);
+    }
+
+    public dispatchCommand(command: Command['id'], payload?: any) {
+        this.#state.commands.registered[command].run(this, payload);
+    }
+
+    #emit<Event extends keyof CustomEventTarget>(event: Event, data?: CustomEventTarget[Event] extends CustomEvent<infer K> ? K : never) {
         this.dispatchEvent(new CustomEvent(String(event), {detail: data}));
     }
 
-    public on<K extends keyof CustomEventTarget>(type: K, callback: (event: CustomEvent<CustomEventTarget[K]>) => void, options?: AddEventListenerOptions) {
+    public on<K extends keyof CustomEventTarget>(type: K, callback: (event: CustomEventTarget[K]) => void, options?: AddEventListenerOptions) {
         this.addEventListener(type, callback as EventListener, options);
+    }
+
+    async #loadPlugins() {
+        await Promise.all(this.#state.plugins.map(plugin => plugin.register(this)));
     }
 }
 
@@ -202,8 +286,6 @@ export class ChangeNotifier {
                             file.callback();
         });
 
-        console.log(observer);
-
         observer.observe(dir, { recursive: true });
     }
 
@@ -216,3 +298,10 @@ export class ChangeNotifier {
             this.#watchers.splice(index, 1);
     }
 }
+
+export const state =  new class extends GlobalState {
+    constructor() {
+        super();
+    }
+};
+export default state;

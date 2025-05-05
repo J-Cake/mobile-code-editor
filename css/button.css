@@ -1,5 +1,5 @@
 button {
-    padding: var(--spacing-xs) var(--spacing-s);
+    padding: var(--spacing-s) var(--spacing-m);
     cursor: pointer;
 
     border: none;
@@ -20,6 +20,7 @@ button:before {
     content: attr(data-icon);
     font: var(--icon);
     font-size: var(--font-size-s);
+    margin-inline-end: var(--spacing-xs);
 }
 
 button.primary {
