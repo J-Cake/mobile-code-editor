@@ -126,7 +126,7 @@ export default function() {
 
     let Body = () => active?.render?.call(active) ?? <CentreLayout>
         {"No tabs open."}
-        <Button variant={"primary"} icon={"\uECEB"} onActivate={() => state.dispatchCommand('view-files')}>
+        <Button variant={"primary"} icon={"\uECEB"} onActivate={() => state.dispatchCommand('project-files')}>
             {"Open File"}
         </Button>
 	</CentreLayout>;

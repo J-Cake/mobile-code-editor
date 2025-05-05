@@ -10,13 +10,17 @@
 
     align-items: stretch;
 
+    gap: var(--spacing-m);
+
     flex: 1;
     --depth: 0;
 }
 
 .file-tree-directory .file-tree-directory-entry {
     display: block;
-    padding: var(--spacing-xs) var(--spacing-s);
+    padding: var(--spacing-xs) var(--spacing-m);
+
+    border-radius: var(--radius-s);
 }
 
 .file-tree-directory .file-tree-directory-entry:hover {
@@ -40,9 +44,9 @@
 }
 
 .file-tree-directory .file-tree-directory-entry {
-    padding-inline-start: calc(var(--depth) * var(--spacing-l)) !important;
+    padding-inline-start: calc(var(--depth) * var(--spacing-l) + var(--spacing-s)) !important;
 }
 
 .file-tree-directory span.file-tree-directory-entry {
-    padding-inline-start: calc((var(--depth) + 1) * var(--spacing-l)) !important;
+    padding-inline-start: calc((var(--depth) + 1) * var(--spacing-l) + var(--spacing-s)) !important;
 }

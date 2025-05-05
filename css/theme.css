@@ -74,7 +74,7 @@
     --font-monospace: "Inconsolata", "Source Sans Pro", consolas, monospace;
     --font-icon: "remixicon", sans-serif;
 
-    --editor-font: var(--font-size-s) var(--font-monospace);
+    --editor-font: var(--font-size-m) var(--font-monospace);
 
     --font-xxs: var(--font-size-xxs) var(--font);
     --font-xxs-bold: bold var(--font-size-xxs) var(--font);
@@ -108,8 +108,8 @@
     /* Theme Values */
 
     --accent-h: 201deg;
-    --accent-s: 33%;
-    --accent-l: 42%;
+    --accent-s: 67%;
+    --accent-l: 61%;
     --accent-a: 100%;
     --accent: hsla(var(--accent-h), var(--accent-s), var(--accent-l), var(--accent-a));
 
@@ -128,9 +128,9 @@
     --widget-radius-m: var(--radius-s);
     --widget-radius-l: var(--radius-m);
 
-    --shadow-s: 0 0 var(--spacing-s) var(--shade-05);
-    --shadow-m: 0 0 var(--spacing-m) var(--shade-04);
-    --shadow-l: 0 0 var(--spacing-l) var(--shade-03);
+    --shadow-s: 0 0 var(--spacing-s) hsla(0, 0%, var(--lightness-xd), 25%);
+    --shadow-m: 0 0 var(--spacing-m) hsla(0, 0%, var(--lightness-xd), 30%);
+    --shadow-l: 0 0 var(--spacing-l) hsla(0, 0%, var(--lightness-xd), 35%);
 
     /* Shadow values used by widgets */
     --widget-shadow: 0;

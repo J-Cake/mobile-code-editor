@@ -10,6 +10,7 @@ import Viewport from './viewport.js';
 
 import '@css/main.css';
 import Modal from './widgets/modal.js';
+import ContextMenu from "./widgets/context-menu.js";
 
 export const root = DOM.createRoot(document.querySelector('#root')!);
 
@@ -27,17 +28,19 @@ state.on('state-loaded', () => {
     window.getStateManager = () => state;
 
     state.registerCommand({
-        display: 'View files',
-        id: 'view-files',
-        shortcut: 'ctrl+alt+f',
-        run() {
-            new Modal()
-                .show(<>
-                    <h1>{"Project files"}</h1>
-                    <FileTree />
-                </>);
+        display: 'Display all commands',
+        id: 'command-bar',
+        icon: '\uF1F8',
+        shortcut: 'ctrl+p',
+        run(mgr) {
+            mgr.mutate(state => Object.keys(state.commands.registered)
+                .reduce((a, i) => a.addOption({ command: i }), new ContextMenu())
+                .header('All commands')
+                .show());
         },
     });
+
+    state.dispatchCommand('command-bar');
 
     root.render(<App/>);
 });

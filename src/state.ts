@@ -238,14 +238,20 @@ export class GlobalState extends EventTarget {
             if (shortcuts.length <= 0 && command.shortcut)
                 shortcuts.push(command.shortcut);
 
-            mousetrap.bind(shortcuts, () => command.run(this));
+            mousetrap.bind(shortcuts, e => {
+                e.preventDefault()
+                command.run(this);
+            });
         });
 
         this.#emit('register-command', command);
     }
 
     public dispatchCommand(command: Command['id'], payload?: any) {
-        this.#state.commands.registered[command].run(this, payload);
+        if (command in this.#state.commands.registered)
+            this.#state.commands.registered[command].run(this, payload);
+        else
+            console.warn(`Command ${command} not found`);
     }
 
     #emit<Event extends keyof CustomEventTarget>(event: Event, data?: CustomEventTarget[Event] extends CustomEvent<infer K> ? K : never) {

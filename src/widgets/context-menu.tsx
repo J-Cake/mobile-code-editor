@@ -4,8 +4,9 @@ import * as dom from 'react-dom/client';
 import { Command } from '../state.js';
 import style from "@css/popup.css?raw";
 import Cmd from './command.js';
+import Modal from './modal.js';
 
-export default class ContextMenu {
+export default class ContextMenu extends Modal {
     private options: Array<MenuOption | { command: Command['id'] } | ContextMenu | 'separator'> = [];
     public addOption(option: MenuOption | { command: Command['id'] }): ContextMenu {
         this.options.push(option);
@@ -22,33 +23,27 @@ export default class ContextMenu {
         return this;
     }
 
+    containerFactory(): HTMLDialogElement {
+        const container = super.containerFactory();
+        container.classList.add('context-menu');
+        return container;
+    }
+
     public show() {
-        const modal = document.querySelector('#modals')!
-            .appendChild(document.createElement('dialog'));
-
-        modal.classList.add('context-menu');
-
-        dom.createRoot(modal)
-            .render(<>
-                <style scoped>{style}</style>
-
-                {this.options.map((option, a) => {
-                    if (option === 'separator')
-                        return <div className={"context-menu-item context-menu-separator"} key={`option-${a}`} />;
-                    else if (typeof option == 'object' && 'command' in option)
-                        return <div className={"context-menu-item context-menu-command"}  key={`option-${a}`}>
-                            <Cmd command={option.command} />
-                        </div>;
-                    else if (isSubmenu(option))
-                        return <div className={"context-menu-item context-menu-submenu"} data-icon={option.icon} key={`option-${a}`}>{option.label}</div>;
-                    else if (isMenu(option))
-                        return <div className={"context-menu-item context-menu-option"} data-icon={option.icon ?? ''} key={`option-${a}`}>
-                            {option.label}
-                        </div>;
-                })}
-            </>);
-
-        modal.showModal();
+        super.show(this.options.map((option, a) => {
+            if (option === 'separator')
+                return <div className={"context-menu-item context-menu-separator"} key={`option-${a}`} />;
+            else if (typeof option == 'object' && 'command' in option)
+                return <div className={"context-menu-item context-menu-command"}  key={`option-${a}`}>
+                    <Cmd command={option.command} />
+                </div>;
+            else if (isSubmenu(option))
+                return <div className={"context-menu-item context-menu-submenu"} data-icon={option.icon} key={`option-${a}`}>{option.label}</div>;
+            else if (isMenu(option))
+                return <div className={"context-menu-item context-menu-option"} data-icon={option.icon ?? ''} key={`option-${a}`}>
+                    {option.label}
+                </div>;
+        }))
     }
 }
 

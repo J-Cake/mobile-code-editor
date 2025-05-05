@@ -5,6 +5,9 @@ button {
     border: none;
 
     display: block;
+
+    border-radius: var(--radius-s);
+    box-shadow: var(--shadow-l);
 }
 
 button:disabled {
@@ -36,6 +39,7 @@ button, button.secondary {
 button.tertiary {
     background: transparent;
     color: var(--accent);
+    box-shadow: none;
 }
 
 button.success {
@@ -50,5 +54,5 @@ button.warning {
 
 button.danger {
     background: var(--red);
-    color: var(--foreground);
+    color: var(--foreground-accent);
 }

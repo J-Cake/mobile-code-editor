@@ -23,7 +23,7 @@ export default function FileTree(props: {}) {
             {project ? <Directory parent={'/'} dir={project} load depth={0}/> : <span>{"Loading..."}</span>}
         </div>
 
-        <Button variant="warning" icon={"\uED58"} onActivate={() => state.closeProject()}>{"Close Project"}</Button>
+        <Button variant="danger" icon={"\uED58"} onActivate={() => state.closeProject()}>{"Close Project"}</Button>
     </div>;
 }
 

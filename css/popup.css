@@ -17,13 +17,13 @@
     display: grid;
 
     grid-template-columns: auto 1fr auto;
-    grid-template-rows: 1fr;
+    grid-template-rows: auto;
     grid-auto-rows: 1fr;
 
     align-items: center;
 }
 
-.context-menu > .context-menu-item {
+.context-menu .context-menu-item {
     display: grid;
 
     grid-column: 1 / -1;
@@ -36,6 +36,9 @@
 }
 
 .context-menu > .context-menu-command button {
+
+    all: unset;
+
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
@@ -52,29 +55,75 @@
 
         box-sizing: border-box;
 
+        background: var(--background-02);
+        color: var(--foreground-02);
+
         width: 100%;
         top: 100%;
-        transform: translateY(-100%);
         margin: 0;
-        padding: var( --spacing-s);
+        padding: var(--spacing-m);
         max-width: unset;
-        max-height: 60vh;
+        max-height: min(90vh, var(--element-l));
+
+        animation: enter 0.1s;
+        animation-fill-mode: forwards;
+
+        border-top-left-radius: var(--radius-l);
+        border-top-right-radius: var(--radius-l);
+    }
+
+    @keyframes enter {
+        from {
+            transform: translateY(0);
+        }
+        to {
+            transform: translateY(-100%);
+        }
+    }
+
+    .modal.minimised {
+        top: 100%;
+        transform: translateY(calc(0 - var(--spacing-l)));
+    }
+
+    .context-menu::backdrop, .modal::backdrop {
+        backdrop-filter: blur(var(--spacing-xxs)) brightness(80%);
+
     }
 
     .context-menu:before, .modal:before {
         content: "";
 
+        position: sticky;
+
         background: var(--background-03);
         width: var(--spacing-l);
         height: var(--spacing-xxs);
-        grid-column: 1 / -1;
-        grid-row: 1;
 
-        align-self: self-start;
-
-        position: relative;
+        top: 0;
 
         left: 50%;
-        transform: translateX(-50%);
+        transform: translate(-50%, 0);
+    }
+
+    .context-menu {
+        display: grid;
+
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-auto-rows: 1fr;
+
+        grid-gap: var(--spacing-s);
+
+        align-items: center;
+    }
+
+    .context-menu:before {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+    .context-menu .header {
+        grid-column: 1 / -1;
+        grid-row: 2;
     }
 }

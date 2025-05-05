@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+	<defs>
+		<mask id="mask">
+			<rect x="0" y="0" width="500" height="500" fill="white" />
+
+			<text style="fill: #000; font-family: &quot;InconsolataGo Nerd Font Mono&quot;; font-size: 160px; font-weight: 700; white-space: pre; text-anchor: middle;" x="250" y="300">&lt;/&gt;</text>
+		</mask>
+	</defs>
+
+	<g style="mask: url(#mask);">
+		<g style="transform-origin: 267.759px 239.133px;" transform="matrix(0.917477, 0.397788, -0.397788, 0.917477, 1.113705, 8.7061)">
+			<path style="stroke: currentColor; stroke-width: 20px; transform-box: fill-box; transform-origin: 50% 50%; fill: none;" d="M 251.362 60.905 C 386.493 60.905 472.081 208.848 404.515 327.995 C 354.44 416.294 240.942 445.111 156.63 390.088" transform="matrix(0.965926, -0.258819, 0.258819, 0.965926, -0.031948, -0.369135)"></path>
+			<line style="stroke: currentColor; stroke-width: 20px; transform-box: fill-box; transform-origin: 50% 50%;" x1="119.766" y1="379.609" x2="380.234" y2="119.141" transform="matrix(0.707107, -0.707107, 0.707107, 0.707107, -0.000014, -0.000002)"></line>
+			<line style="stroke: currentColor; stroke-width: 20px;" x1="322.905" y1="413.769" x2="340.806" y2="455.056"></line>
+			<line style="stroke: currentColor; stroke-width: 20px; transform-origin: 340.805px 455.055px;" x1="243.522" y1="497.234" x2="438.088" y2="412.876" />
+		</g>
+	</g>
+
+	<ellipse style="fill: #48768e; mask: url(#mask);" cx="250" cy="250" rx="135" ry="135" mask="circle"></ellipse>
+</svg>

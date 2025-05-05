@@ -28,3 +28,4 @@ await esbuild.build({
 });
 
 await fs.copyFile('index.html', 'build/index.html');
+await fs.copyFile('logo/logo.svg', 'build/logo.svg');

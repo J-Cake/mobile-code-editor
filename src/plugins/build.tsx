@@ -58,7 +58,9 @@ export class BuildGUI implements Editor {
                             action: () => console.log(provider.name)
                         })
 
-                    options.show();
+                    options
+                        .header("Add build step")
+                        .show();
                 }} />
             </div>
         </section>;
