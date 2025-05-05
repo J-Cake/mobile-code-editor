@@ -2,6 +2,9 @@
     list-style-type: none;
     margin: 0;
     padding: 0;
+
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .file-tree, .file-tree-contents {
@@ -21,6 +24,12 @@
     padding: var(--spacing-xs) var(--spacing-m);
 
     border-radius: var(--radius-s);
+
+     max-width: 100%;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .file-tree-directory .file-tree-directory-entry:hover {
