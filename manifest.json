@@ -1,0 +1,17 @@
+{
+	"lang": "en-au",
+	"name": "Mobile code editor",
+	"short_name": "code",
+	"description": "A code editor focused and on making development accessible to mobile or on-the-go users.",
+	"start_url": "/",
+	"background_color": "#2f3d58",
+	"theme_color": "#2f3d58",
+	"orientation": "JSchneiderProjects",
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "logo.svg",
+			"sizes": "500x500"
+		}
+	]
+}

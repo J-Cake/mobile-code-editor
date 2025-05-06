@@ -93,11 +93,15 @@ export default class Modal extends EventTarget {
         this.renderer = dom.createRoot(modal);
 
         this.renderer.render(<>
+            <span className={"handle"}></span>
+
             <style scoped>{style}</style>
 
             {this.#header && <h1 className={"header"}>{this.#header}</h1>}
 
-            {children}
+            <div className={"modal-content"}>
+                {children}
+            </div>
         </>);
 
         modal.showPopover();

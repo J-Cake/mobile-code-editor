@@ -4,8 +4,8 @@
     "version": "0.1.0",
     "type": "module",
     "scripts": {
-        "build": "./build.js",
-        "serve": "sudo caddy run -c Caddyfile"
+        "build": "node ./build.js",
+        "serve": "python -m http.server -d build"
     },
     "dependencies": {
         "@codemirror/lang-javascript": "^6.2.3",

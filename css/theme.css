@@ -102,8 +102,8 @@
     --foreground: var(--foreground-01);
     --background: var(--background-01);
 
-    --foreground-accent: var(--foreground-07);
-    --background-accent: var(--background-07);
+    --foreground-accent: var(--foreground-01);
+    --background-accent: var(--background-01);
 
     /* Theme Values */
 
@@ -159,6 +159,11 @@
         --background-07: var(--shade-01);
         --foreground-07: var(--shade-07);
 
+        --background: var(--background-01);
+
+        --foreground-accent: var(--foreground-03);
+        --background-accent: var(--background-01);
+
         /* A factor used to alter a value under certain conditions */
         --delta: 0.8;
     }
@@ -187,6 +192,11 @@
 
         --background-07: var(--shade-07);
         --foreground-07: var(--shade-01);
+
+        --background: var(--background-01);
+
+        --foreground-accent: var(--foreground-01);
+        --background-accent: var(--background-02);
 
         /* A factor used to alter a value under certain conditions */
         --delta: 1.2;
