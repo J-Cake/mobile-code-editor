@@ -25,7 +25,7 @@
 .build-gui > .floating-buttons {
     position: fixed;
 
-    bottom: var(--spacing-l);
+    bottom: calc(2 * var(--spacing-l));
     right: var(--spacing-l);
 }
 
@@ -33,6 +33,11 @@
     width: var(--spacing-xxl);
     height: var(--spacing-xxl);
     font-size: var(--font-size-xxl);
+
+    display: flex;
+    align-items: center;
+
+    border-radius: 10000px;
 }
 
 .build-gui > .floating-buttons > button:before {

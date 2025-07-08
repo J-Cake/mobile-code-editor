@@ -1,5 +1,5 @@
 button {
-    padding: var(--spacing-m) var(--spacing-l);
+    padding: var(--spacing-s) var(--spacing-m);
     cursor: pointer;
 
     border: none;
@@ -12,6 +12,33 @@ button {
 
     border-radius: var(--radius-s);
     box-shadow: var(--shadow-l);
+}
+
+.button-group button:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+.button-group button:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.button-group {
+    display: flex;
+    box-shadow: var(--shadow-l);
+    border-radius: var(--radius-s);
+    overflow: hidden;
+}
+
+.button-group button {
+    box-shadow: none;
+}
+
+.button-group button:not(.symbolic) {
+    flex: 1;
 }
 
 button:disabled {
@@ -31,12 +58,16 @@ button:hover {
 
 button.primary {
     background: var(--accent);
+    border: var(--border-dull);
+    border-color: var(--accent-solid);
     color: var(--foreground-accent);
 }
 
 button, button.secondary {
-    background: var(--background-02);
-    color: var(--accent);
+    background: var(--secondary);
+    border: var(--border-dull);
+    border-color: var(--secondary-solid);
+    color: var(--foreground-secondary);
 }
 
 button.tertiary {
@@ -45,17 +76,32 @@ button.tertiary {
     box-shadow: none;
 }
 
+button.flat {
+    background: transparent;
+    border: none;
+    color: inherit;
+    box-shadow: none;
+    display: inline;
+    padding: 0;
+}
+
 button.success {
     background: var(--green);
+    border: var(--border-dull);
+    border-color: var(--green-solid);
     color: var(--foreground);
 }
 
 button.warning {
     background: var(--orange);
+    border: var(--border-dull);
+    border-color: var(--orange-solid);
     color: var(--foreground);
 }
 
 button.danger {
     background: var(--red);
+    border: var(--border-dull);
+    border-color: var(--red-solid);
     color: var(--foreground-accent);
 }

@@ -104,22 +104,35 @@
     --foreground: var(--foreground-01);
     --background: var(--background-01);
 
-    --foreground-accent: var(--foreground-01);
+    --foreground-secondary: var(--foreground-03);
+    --background-secondary: var(--background-01);
+
+    --foreground-accent: var(--foreground-07);
     --background-accent: var(--background-01);
 
     /* Theme Values */
 
-    --accent-h: 201deg;
-    --accent-s: 67%;
-    --accent-l: 61%;
-    --accent-a: 100%;
+    --accent-h: 172deg;
+    --accent-s: 22%;
+    --accent-l: 50%;
+    --accent-a: 81%;
+    --accent-a-solid: 81%;
     --accent: hsla(var(--accent-h), var(--accent-s), var(--accent-l), var(--accent-a));
+    --accent-solid: hsla(var(--accent-h), var(--accent-s), var(--accent-l), var(--accent-a-solid));
 
-    --red: #da4628;
-    --green: #07c165;
-    --blue: #0b87b3;
-    --yellow: #e6c801;
-    --orange: #e67701;
+    --secondary: #bfbfbfcf;
+    --secondary-solid: #bfbfbfff;
+
+    --red: #d87171cf;
+    --red-solid: #d87171ff;
+    --green: #9fda97cf;
+    --green-solid: #9fda97ff;
+    --blue: #9ec3d1cf;
+    --blue-solid: #9ec3d1ff;
+    --yellow: #f1e2a1cf;
+    --yellow-solid: #f1e2a1ff;
+    --orange: #e3c39dcf;
+    --orange-solid: #e3c39dff;
 
     --border-simple: var(--spacing-xxs) solid var(--foreground-03);
     --border-dull: 1px solid var(--foreground-05);
@@ -163,9 +176,6 @@
 
         --background: var(--background-01);
 
-        --foreground-accent: var(--foreground-03);
-        --background-accent: var(--background-01);
-
         /* A factor used to alter a value under certain conditions */
         --delta: 0.8;
     }
@@ -196,9 +206,6 @@
         --foreground-07: var(--shade-01);
 
         --background: var(--background-01);
-
-        --foreground-accent: var(--foreground-01);
-        --background-accent: var(--background-02);
 
         /* A factor used to alter a value under certain conditions */
         --delta: 1.2;

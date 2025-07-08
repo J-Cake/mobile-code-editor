@@ -42,7 +42,7 @@ export default class ContextMenu extends Modal {
                 return <div className={"context-menu-item context-menu-submenu"} data-icon={option.icon} key={`option-${a}`}>{option.label}</div>;
             else if (isMenu(option))
                 return <div className={"context-menu-item context-menu-option"} data-icon={option.icon ?? ''} key={`option-${a}`}>
-                    <Button variant={"tertiary"} onActivate={option.action}>
+                    <Button variant={"flat"} onActivate={option.action}>
                         {option.label}
                     </Button>
                 </div>;
