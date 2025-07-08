@@ -20,12 +20,13 @@
 }
 
 .file-tree-directory .file-tree-directory-entry {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: var(--spacing-xs) var(--spacing-m);
 
     border-radius: var(--radius-s);
 
-     max-width: 100%;
+    max-width: 100%;
 
     overflow: hidden;
     text-overflow: ellipsis;
@@ -40,7 +41,6 @@
 .file-tree-directory .file-tree-directory-entry:before {
     content: attr(data-icon);
     font: var(--icon);
-    font-size: var(--font-size-s);
     padding-inline: var(--spacing-xs);
 }
 
@@ -50,6 +50,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font: var(--icon);
 }
 
 .file-tree-directory .file-tree-directory-entry {

@@ -9,7 +9,7 @@ export class SettingsPlugin extends Plugin {
         state.registerCommand({
             display: 'Open Settings',
             id: 'settings',
-            icon: '\uF0E4',
+            icon: '\ue8b8',
             description: 'Open the settings window',
             shortcut: 'ctrl+alt+s',
 

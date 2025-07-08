@@ -39,9 +39,7 @@
     --radius-xs: var(--spacing-xs);
     --radius-s: var(--spacing-s);
     --radius-m: var(--spacing-m);
-    --radius-l: var(--spacing-l);
-    --radius-xl: var(--spacing-xl);
-    --radius-xxl: var(--spacing-xxl);
+    --radius-l: calc(var(--spacing-m) + var(--spacing-s));
 
     --shade-01: hsl(0, 0%, var(--lightness-xxd));
     --shade-02: hsl(0, 0%, var(--lightness-xd));
@@ -97,7 +95,7 @@
     --font-heading-m: bold 1.75em var(--font);
     --font-heading-s: bold 1.5em var(--font);
 
-    --icon: 300 1em var(--font-icon);
+    --icon: 300 1.5em var(--font-icon);
 
     --font-article: var(--font-size-m) var(--font);
 
@@ -178,6 +176,9 @@
 
         /* A factor used to alter a value under certain conditions */
         --delta: 0.8;
+
+        --secondary: #bfbfbfcf;
+        --secondary-solid: #bfbfbfff;
     }
 }
 
@@ -209,5 +210,8 @@
 
         /* A factor used to alter a value under certain conditions */
         --delta: 1.2;
+
+        --secondary: #494949CF;
+        --secondary-solid: #494949FF;
     }
 }

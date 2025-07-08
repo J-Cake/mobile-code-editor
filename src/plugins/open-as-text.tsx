@@ -14,7 +14,7 @@ export default class OpenAsText extends Plugin {
             display: "View project files",
             id: "project-files",
             shortcut: 'shift shift',
-            icon: '\uED6A',
+            icon: '\ue97a',
             run(state: GlobalState, payload?: any) {
                 new Modal()
                     .header('Project Files')

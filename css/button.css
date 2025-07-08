@@ -8,6 +8,7 @@ button {
     gap: var(--spacing-m);
 
     text-align: center;
+    align-items: center;
     justify-content: center;
 
     border-radius: var(--radius-s);

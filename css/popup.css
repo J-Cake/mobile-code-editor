@@ -91,13 +91,13 @@
 		max-width: min(100vw, var(--element-l));
 		max-height: min(90vh, var(--element-l));
 
-		--radius: var(--radius-m);
+		--radius: var(--radius-l);
 
 		border-radius: var(--radius);
 
 		touch-action: pan-y;
 
-		overflow: auto;
+		overflow-y: auto;
 	}
 
 	.modal.minimised {
@@ -122,6 +122,11 @@
 		content: "";
 
 		grid-area: handle;
+
+		position: sticky;
+		top: 0;
+
+		z-index: 100;
 
 		align-self: self-start;
 		justify-self: center;
