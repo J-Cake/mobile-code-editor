@@ -39,6 +39,10 @@
 	max-width: 100%;
 }
 
+.context-menu .modal-content .context-menu-separator {
+	border-top: var(--border-dull);
+}
+
 .context-menu .modal-content .context-menu-item {
 	display: grid;
 
@@ -55,7 +59,7 @@
 	overflow: hidden;
 }
 
-.context-menu .context-menu-command button {
+.context-menu .context-menu-command button, .context-menu .context-menu-option {
 	margin: 0;
 
 	outline: none;
@@ -68,6 +72,14 @@
 
 	text-align: left;
 	align-items: center;
+}
+
+.context-menu .context-menu-option button.flat {
+	text-align: left;
+	align-items: center;
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
 }
 
 @media screen and (max-device-width: 900px) {
@@ -86,7 +98,7 @@
 	.modal {
 		position: fixed;
 
-		box-sizing: border-box;
+		box-sizing: content-box;
 
 		--max-width: min(calc(100vw - 2 * var(--spacing-m) - var(--spacing-l)), var(--element-l));
 
@@ -97,7 +109,7 @@
         box-shadow: var(--shadow-s);
 		border: var(--border-dull);
 
-		width: calc(100% - var(--spacing-l));
+		width: 100%;
 		margin: auto;
 		padding: var(--spacing-m);
 		max-width: var(--max-width);

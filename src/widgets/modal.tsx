@@ -54,7 +54,7 @@ export default class Modal extends EventTarget {
         }) = {start: null};
         modal.addEventListener('touchstart', function (this: Modal, e: TouchEvent) {
             gesture = {
-                start: e.changedTouches[0].clientY,
+                start: Math.min(window.innerHeight, Math.max(e.changedTouches[0].clientY)),
                 distance: 0,
                 scrollSamples: 0,
                 scrollEvents: false,
@@ -66,7 +66,7 @@ export default class Modal extends EventTarget {
                 gesture.scrollSamples++;
 
             if (typeof gesture.start == 'number' && !gesture.scrollEvents && (gesture.startedOnFrame || gesture.scrollSamples > 3)) {
-                gesture.distance = e.changedTouches[0].clientY - gesture.start;
+                gesture.distance = Math.min(window.innerHeight, Math.max(e.changedTouches[0].clientY)) - gesture.start;
 
                 if (modal.classList.contains('minimised'))
                     modal.style.setProperty('transform', `translateY(${gesture.distance}px)`);

@@ -11,6 +11,7 @@ import ContextMenu from "../widgets/context-menu.js";
 export default class Build extends Plugin {
     buildStepProviders: Array<BuildStepProvider> = [{
         name: "Script",
+        icon: '\ue86f',
         render() {
             return <>{"Script"}</>
         }
@@ -57,11 +58,22 @@ export class BuildGUI implements Editor {
                 <Button variant={"primary"} icon={"\uf4fd"} onActivate={() => {
                     const options = new ContextMenu();
 
+                    options.addOption({
+                        label: "Add Group",
+                        icon: "\uf710",
+                        action() {
+
+                        }
+                    });
+                    options.addSeparator();
+
                     for (const provider of providers)
                         options.addOption({
                             label: provider.name,
-                            icon: provider.name,
-                            action: () => console.log(provider.name)
+                            icon: provider.icon,
+                            action() {
+
+                            }
                         })
 
                     options
@@ -75,5 +87,6 @@ export class BuildGUI implements Editor {
 
 export interface BuildStepProvider {
     name: string,
+    icon?: string,
     render(): React.ReactNode
 }
