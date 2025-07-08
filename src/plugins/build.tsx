@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import Plugin from "../plugin.js";
-import {GlobalState, state} from "../state.js";
+import {Command, GlobalState, state} from "../state.js";
 import {Editor} from "../viewport.js";
 import Button from "../widgets/button.js";
 
@@ -33,6 +33,12 @@ export default class Build extends Plugin {
 }
 
 export class BuildGUI implements Editor {
+    beforeClose?(this: Editor<any>): void | Promise<void> {
+        throw new Error('Method not implemented.');
+    }
+    listContextActions(): Command[] {
+        return [];
+    }
     title = "Build";
 
     render(): React.ReactNode {

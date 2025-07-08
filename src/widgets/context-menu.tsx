@@ -5,6 +5,7 @@ import { Command } from '../state.js';
 import style from "@css/popup.css?raw";
 import Cmd from './command.js';
 import Modal from './modal.js';
+import Button from './button.js';
 
 export default class ContextMenu extends Modal {
     private options: Array<MenuOption | { command: Command['id'] } | ContextMenu | 'separator'> = [];
@@ -41,7 +42,9 @@ export default class ContextMenu extends Modal {
                 return <div className={"context-menu-item context-menu-submenu"} data-icon={option.icon} key={`option-${a}`}>{option.label}</div>;
             else if (isMenu(option))
                 return <div className={"context-menu-item context-menu-option"} data-icon={option.icon ?? ''} key={`option-${a}`}>
-                    {option.label}
+                    <Button variant={"tertiary"} onActivate={option.action}>
+                        {option.label}
+                    </Button>
                 </div>;
         }))
     }

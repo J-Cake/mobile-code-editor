@@ -71,7 +71,7 @@ export default class Modal extends EventTarget {
                 if (modal.classList.contains('minimised'))
                     modal.style.setProperty('transform', `translateY(${gesture.distance}px)`);
                 else
-                    modal.style.setProperty('transform', `translateY(calc(${gesture.distance}px - 100%))`);
+                    modal.style.setProperty('transform', `translateY(calc(${gesture.distance}px))`);
             }
         }.bind(this), {passive: true});
         modal.addEventListener('touchend', function (this: Modal, e: TouchEvent) {

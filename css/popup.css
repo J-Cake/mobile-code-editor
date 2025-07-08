@@ -79,31 +79,27 @@
 		color: var(--foreground-accent);
         box-shadow: var(--shadow-s);
 
-		width: 100%;
-		top: 100%;
-		bottom: 0;
-		margin: 0 auto;
+		width: calc(100% - var(--spacing-l));
+		margin: auto;
 		padding: var(--spacing-m);
 		max-width: min(100vw, var(--element-l));
 		max-height: min(90vh, var(--element-l));
 
-		--radius: var(--radius-l);
-
-		border-top-left-radius: var(--radius);
-		border-top-right-radius: var(--radius);
+		border-radius: var(--radius-l);
 
 		touch-action: pan-y;
 
-		overflow: visible;
-	}
-
-	.modal:not(.minimised) {
-		transform: translateY(-100%);
+		overflow: auto;
 	}
 
 	.modal.minimised {
-		top: calc(100% - var(--spacing-l));
-		--radius: 0;
+		top: calc(100vh - var(--spacing-l));
+		width: 100%;
+		max-height: 100vh;
+		height: 100vh;
+		margin: 0 auto;
+
+		border-radius: 0;
 	}
 
 	.modal::backdrop {
@@ -134,5 +130,15 @@
 		grid-gap: var(--spacing-m);
 
 		align-items: center;
+	}
+}
+
+@media screen and (min-device-width: 900px) {
+	.context-menu {
+		background: var(--background-02);
+	}
+
+	.context-menu.minimised {
+		display: none;
 	}
 }

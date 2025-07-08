@@ -63,6 +63,7 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    flex-wrap: wrap;
 
     border-bottom: var(--border-dull);
 
@@ -75,6 +76,7 @@
     align-items: baseline;
 
     max-width: 100%;
+    width: fit-content;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

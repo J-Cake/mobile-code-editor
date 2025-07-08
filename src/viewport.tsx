@@ -1,7 +1,7 @@
 import * as  React from "react";
 
 import state, {
-    Cloneable,
+    Cloneable, Command,
     deserialise,
     fromPersistent,
     GlobalState,
@@ -112,6 +112,11 @@ export interface Editor<T = any> {
     render(this: Editor<T>): React.ReactNode;
 
     beforeClose?(this: Editor<T>): void | Promise<void>;
+
+    /**
+     * An editor can provide a number of actions that are relevant to itself only. That allows the user to access in-editor functions via the command menu.
+     */
+    listContextActions(): Command[];
 }
 
 export default function() {
@@ -126,7 +131,7 @@ export default function() {
 
     let Body = () => active?.render?.call(active) ?? <CentreLayout>
         <p>{"No tabs open."}</p>
-        <Button variant={"primary"} icon={"\uECEB"} onActivate={() => state.dispatchCommand('project-files')}>
+        <Button variant={"primary"} icon={"\ue2c8"} onActivate={() => state.dispatchCommand('project-files')}>
             {"Open File"}
         </Button>
 	</CentreLayout>;
@@ -139,7 +144,7 @@ export default function() {
                      onClick={() => setActive(editor)}>
                     {editor.title}
 
-                    <Button icon={"\uEB99"} variant={"tertiary"} onActivate={() => editors.requestClose(editor)}/>
+                    <Button icon={"\uf508"} variant={"tertiary"} onActivate={() => editors.requestClose(editor)}/>
                 </div>)}
         </div>
 

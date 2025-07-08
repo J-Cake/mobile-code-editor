@@ -86,47 +86,11 @@ export default function App() {
     else
         return <CentreLayout>
             <p>{"No project is open. Select a directory to begin."}</p>
-            <Button icon={"\uED58"}
+            <Button icon="&#xe2c8;"
                     variant={"primary"}
                     onActivate={() => window.showDirectoryPicker()
                         .then(dir => mgr.openProject(dir))}>
                 {"Open Project"}
             </Button>
         </CentreLayout>;
-}
-
-export function LeftSidebar() {
-    const [sidebar, setSidebar] = React.useState(false);
-
-    mgr.on('edit-list-changed', () => setSidebar(false));
-
-    return <>
-        <section className={`sidebar-left ${sidebar ? 'visible' : ''}`}>
-            <div className={"left-button"}>
-                <Button icon={"\uF363"} onActivate={() => setSidebar(!sidebar)}/>
-            </div>
-
-            <FileTree/>
-        </section>
-
-        <div className={"left-button"}>
-            <Button icon={"\uEF3E"} onActivate={() => setSidebar(!sidebar)}/>
-        </div>
-    </>;
-}
-
-export function RightSidebar() {
-    const [sidebar, setSidebar] = React.useState(false);
-
-    return <>
-        <div className={"right-button"}>
-            <Button icon={"\uEF3E"} onActivate={() => setSidebar(!sidebar)}/>
-        </div>
-
-        <section className={`sidebar-right ${sidebar ? 'visible' : ''}`}>
-            <div className={"right-button"}>
-                <Button icon={"\uF365"} onActivate={() => setSidebar(!sidebar)}/>
-            </div>
-        </section>
-    </>
 }

@@ -8,9 +8,9 @@ import Button from "./widgets/button.js";
 import TextEditor from "./text-editor.js";
 
 export const icons = {
-    defaultFolder: '\uED54',
-    defaultFolderOpen: '\uED58',
-    defaultFile: '\uECEB'
+    defaultFolder: '\ue2c7',
+    defaultFolderOpen: '\ue2c8',
+    defaultFile: '\ue66d'
 } satisfies Record<string, string>;
 
 export default function FileTree(props: {}) {

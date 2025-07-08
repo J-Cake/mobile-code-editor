@@ -3,8 +3,13 @@ import * as cm from 'codemirror';
 import * as cm_view from '@codemirror/view';
 import * as cm_state from '@codemirror/state';
 
-import state, {ChangeNotifier, Cloneable, debounce, fromPersistent, SerialisedObject, toPersistent} from "./state.js";
-import { Editor } from "./viewport.js";
+import state, {ChangeNotifier, Cloneable, Command,
+    debounce,
+    fromPersistent,
+    SerialisedObject,
+    toPersistent
+} from "./state.js";
+import {Editor} from "./viewport.js";
 
 import style from "@css/text-editor.css?raw";
 
@@ -38,6 +43,10 @@ export default class TextEditor implements Editor, Cloneable {
                     .then(async writable => await writable.write(content) ?? writable)
                     .then(res => res.close());
         }, 2000);
+    }
+
+    listContextActions(): Command[] {
+        return [];
     }
 
     [toPersistent](): SerialisedObject<FileSystemFileHandle, TextEditor> {
