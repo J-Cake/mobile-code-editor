@@ -26,7 +26,25 @@ export default function FileTree(props: {}) {
 
         <div className={"button-group force-inline"}>
             <Button icon={"\ue091"}>{"Add File"}</Button>
-            <Button symbolic icon={"\ue5d4"} />
+            <Button symbolic icon={"\ue5d4"} onActivate={() => {
+                new ContextMenu()
+                    .header("Project Settings")
+                    .addOption({
+                        label: "New Directory",
+                        icon: '\ue2cc',
+                        action() {
+
+                        }
+                    })
+                    .addOption({
+                        label: "Close project",
+                        icon: '\ueb83',
+                        action() {
+                            state.closeProject();
+                        }
+                    })
+                    .show();
+            }} />
         </div>
     </div>;
 }
