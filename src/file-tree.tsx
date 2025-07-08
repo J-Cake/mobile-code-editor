@@ -25,7 +25,7 @@ export default function FileTree(props: {}) {
 
         <div className={"button-group force-inline"}>
             <Button icon={"\uED58"}>{"Add File"}</Button>
-            <Button variant={"symbolic"} icon={"\ue5d4"} />
+            <Button symbolic icon={"\ue5d4"} />
         </div>
     </div>;
 }

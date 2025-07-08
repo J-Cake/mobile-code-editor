@@ -6,7 +6,9 @@ export interface ButtonProps {
     icon?: string,
     disabled?: boolean,
 
-    variant?: 'primary' | 'secondary' | 'tertiary' | 'success' | 'danger' | 'warning' | 'flat' | 'symbolic';
+    symbolic?: boolean
+
+    variant?: 'primary' | 'secondary' | 'tertiary' | 'success' | 'danger' | 'warning' | 'flat';
 
     children?: React.ReactNode;
 
@@ -14,9 +16,9 @@ export interface ButtonProps {
 }
 
 export default function Button(props: ButtonProps) {
-    return <button className={`button ${props.variant ?? 'secondary'}`}
+    return <button className={`button ${props.variant ?? 'secondary'} ${props.symbolic ? 'symbolic' : ''}`}
        {...{ disabled: props.disabled, 'data-icon': props.icon }} onClick={e => props.onActivate?.()}>
         <style scoped>{style}</style>
-        {props.variant != 'symbolic' ? props.children : null}
+        {props.symbolic ? null : props.children}
     </button>
 }

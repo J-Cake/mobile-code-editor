@@ -5,7 +5,7 @@
 /*    src: url("https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.ttf");*/
 /*}*/
 
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
 
 /* Base Values */
 
@@ -97,7 +97,7 @@
     --font-heading-m: bold 1.75em var(--font);
     --font-heading-s: bold 1.5em var(--font);
 
-    --icon: 1em var(--font-icon);
+    --icon: 300 1em var(--font-icon);
 
     --font-article: var(--font-size-m) var(--font);
 

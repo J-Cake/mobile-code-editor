@@ -20,7 +20,7 @@ export default class Build extends Plugin {
         mgr.registerCommand({
             display: 'Build',
             id: 'build',
-            icon: '\uF21A',
+            icon: '\uf10b',
             description: 'Edit build commands, and edit structure',
             shortcut: 'ctrl ctrl',
             run: () => mgr.mutate(state => state.viewport.openEditors.open(new BuildGUI())),
@@ -54,7 +54,7 @@ export class BuildGUI implements Editor {
             </div>
 
             <div className={"floating-buttons"}>
-                <Button variant={"primary"} icon={"\uEA13"} onActivate={() => {
+                <Button variant={"primary"} icon={"\uf4fd"} onActivate={() => {
                     const options = new ContextMenu();
 
                     for (const provider of providers)

@@ -56,6 +56,12 @@ button:hover {
 /*    font-size: var(--font-size-m);*/
 /*}*/
 
+button.symbolic {
+    font-size: 1em;
+    line-height: 1em;
+    padding: var(--spacing-s);
+}
+
 button.primary {
     background: var(--accent);
     border: var(--border-dull);

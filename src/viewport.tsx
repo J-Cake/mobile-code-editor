@@ -144,7 +144,7 @@ export default function() {
                      onClick={() => setActive(editor)}>
                     {editor.title}
 
-                    <Button icon={"\uf508"} variant={"tertiary"} onActivate={() => editors.requestClose(editor)}/>
+                    <Button icon={"\uf508"} variant={"danger"} symbolic onActivate={() => editors.requestClose(editor)}/>
                 </div>)}
         </div>
 
