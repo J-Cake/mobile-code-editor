@@ -67,7 +67,7 @@ export function Directory(props: { parent: string, dir: FileSystemDirectoryHandl
         <summary className={"file-tree-directory-entry"}
                  data-icon={icons[props.dir.name.split('.').pop()!.toLowerCase() as keyof typeof icons] ?? icons.defaultFolder}
                  data-icon-open={icons[props.dir.name.split('.').pop()!.toLowerCase() as keyof typeof icons] ?? icons.defaultFolderOpen}>
-            {props.dir.name}
+            <span className={"ellipsis"}>{props.dir.name}</span>
         </summary>
 
         <ul>
@@ -79,7 +79,7 @@ export function Directory(props: { parent: string, dir: FileSystemDirectoryHandl
                               data-icon={icons[props.dir.name.split('.').pop()!.toLowerCase() as keyof typeof icons] ?? icons.defaultFile}
                               tabIndex={0}
                               onClick={() => requestOpen(entry)}>
-                            {entry.name}
+                            <span className={"ellipsis"}>{entry.name}</span>
                         </span>}
                 </li>),
                 false: () => <span>{"Loading..."}</span>

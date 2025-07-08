@@ -17,6 +17,8 @@
 
     flex: 1;
     --depth: 0;
+
+    max-width: 100%;
 }
 
 .file-tree-directory .file-tree-directory-entry {
@@ -25,6 +27,9 @@
     padding: var(--spacing-xs) var(--spacing-m);
 
     border-radius: var(--radius-s);
+}
+
+.file-tree-directory .file-tree-directory-entry > .ellipsis {
 
     max-width: 100%;
 

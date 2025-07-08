@@ -16,6 +16,8 @@
 			"handle"
 			"header"
 			"content";
+
+	overflow: hidden;
 }
 
 .modal .header {
@@ -33,6 +35,8 @@
 	grid-row-gap: var(--spacing-s);
 
 	align-items: center;
+
+	max-width: 100%;
 }
 
 .context-menu .modal-content .context-menu-item {
@@ -45,6 +49,10 @@
 	grid-template-areas: 'icon label more';
 
 	font-size: var(--font-size-m);
+
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .context-menu .context-menu-command button {
@@ -80,6 +88,10 @@
 
 		box-sizing: border-box;
 
+		--max-width: min(calc(100vw - 2 * var(--spacing-m) - var(--spacing-l)), var(--element-l));
+
+		grid-template-columns: var(--max-width);
+
 		background: var(--background-secondary);
 		color: var(--foreground-secondary);
         box-shadow: var(--shadow-s);
@@ -88,7 +100,7 @@
 		width: calc(100% - var(--spacing-l));
 		margin: auto;
 		padding: var(--spacing-m);
-		max-width: min(100vw, var(--element-l));
+		max-width: var(--max-width);
 		max-height: min(90vh, var(--element-l));
 
 		--radius: var(--radius-l);
@@ -147,6 +159,8 @@
 		grid-gap: var(--spacing-m);
 
 		align-items: center;
+
+		max-width: 100%;
 	}
 }
 
