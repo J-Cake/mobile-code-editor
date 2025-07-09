@@ -1,25 +1,24 @@
 .build-gui {
+    position: relative;
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
 
-    grid-template-areas:
-        "heading heading"
-        "steps   steps"
-        "buttons buttons";
-
-    position: relative;
+    width: 100%;
 }
 
-.build-gui > h1 {
-    grid-area: heading;
-}
+.build-commands {
+    grid-area: 1 / 1 / -1 / -1;
 
-.build-gui > .build-commands {
-    grid-area: steps;
+    display: grid;
 
-    overflow: auto;
+    grid-template-columns: auto 1fr auto;
+    grid-auto-rows: min-content;
+
+    grid-gap: var(--spacing-s);
+
+    padding: var(--spacing-m);
 }
 
 .build-gui > .floating-buttons {
@@ -42,4 +41,48 @@
 
 .build-gui > .floating-buttons > button:before {
     font-size: var(--font-size-xl);
+}
+
+.build-object {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+
+    grid-template-areas:
+        "type label actions";
+
+    align-items: center;
+}
+
+.build-object .type {
+    grid-area: type
+}
+
+.build-object .label {
+    grid-area: label
+}
+
+.build-object .actions {
+    grid-area: actions;
+}
+
+.build-group {
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: 100%;
+    border: var(--border-dull);
+    border-radius: var(--radius-m);
+    padding: var(--spacing-s);
+}
+
+.build-group label {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    font-variant: petite-caps;
+    font-weight: bold;
+    color: var(--foreground-03);
+    border-bottom: var(--border-dull);
+    padding: var(--spacing-xs);
 }

@@ -7,7 +7,7 @@ import {Editor, EditorList, OpenEvent, Viewport} from "./viewport.js";
 import Plugin from "./plugin.js";
 import OpenAsText from "./plugins/open-as-text.js";
 import {SettingsPlugin} from "./plugins/settings.js";
-import Build from "./plugins/build.js";
+import Build, {BuildStep, Group, Trigger} from "./plugins/build.js";
 
 export interface Settings {
     excludeFiles: (string | RegExp)[]
@@ -31,6 +31,9 @@ export interface State {
     observer: ChangeNotifier | null,
     settings: Settings,
     plugins: Plugin[],
+
+    projectSpecific: Map<FileSystemDirectoryHandle, ProjectState>,
+
     commands: {
         registered: {
             [id in Command['id']]: Command
@@ -39,6 +42,16 @@ export interface State {
             [key: string]: Command['id']
         }
     }
+}
+
+export interface ProjectState {
+    build?: BuildState
+}
+
+export interface BuildState {
+    groups: Group[],
+    steps: BuildStep<any>[],
+    triggers: Trigger[]
 }
 
 export interface Command {
@@ -120,6 +133,7 @@ export class GlobalState extends EventTarget {
             ]
         },
         plugins: [new OpenAsText, new SettingsPlugin, new Build],
+        projectSpecific: new Map(),
         commands: {
             registered: {},
             keybindings: {}
@@ -136,6 +150,7 @@ export class GlobalState extends EventTarget {
             if (this.#dbHandle)
                 await this.#dbHandle.put('state', {
                     directory: this.#state.directory,
+                    projectSpecific: this.#state.projectSpecific,
                 }, 'app-state');
             else
                 this.on('state-loaded', () => this.#save(), {once: true});
@@ -156,6 +171,7 @@ export class GlobalState extends EventTarget {
 
         // this.#state = deserialise(saved ?? this.#state);
         this.#state.directory = saved?.directory ?? null;
+        this.#state.projectSpecific = saved?.projectSpecific ?? null;
 
         await this.#loadPlugins();
         this.#emit('state-loaded', this.#state);
@@ -202,6 +218,9 @@ export class GlobalState extends EventTarget {
     public openProject(dir: FileSystemDirectoryHandle) {
         this.mutate(state => {
             state.directory = dir;
+            if (!state.projectSpecific.has(dir))
+                state.projectSpecific.set(dir, {});
+
             // state.observer = new ChangeNotifier(dir);
         });
 
