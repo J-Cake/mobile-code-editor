@@ -25,7 +25,7 @@ export default class Build extends Plugin {
             icon: '\uf10b',
             description: 'Edit build commands, and edit structure',
             shortcut: 'ctrl ctrl',
-            run: () => mgr.mutate(state => state.viewport.openEditors.open(new BuildGUI())),
+            run: () => mgr.mutate(state => state.workspace?.state.viewport.openEditors.open(new BuildGUI())),
         })
     }
 
@@ -45,7 +45,7 @@ export class BuildGUI implements Editor {
 
     render(): React.ReactNode {
         const providers = state.useMask(state => state.plugins.find(i => i instanceof Build)?.buildStepProviders ?? []);
-        const buildState = state.useMask(state => (state.directory && state.projectSpecific.get(state.directory)?.build) ?? {
+        const buildState = state.useMask(state => (state.workspace?.state.build) ?? {
             steps: [],
             triggers: [{
                 id: 0,
@@ -64,21 +64,6 @@ export class BuildGUI implements Editor {
                 .reduce((a, i) => Math.max(i.id, a), 0)
         ]) + 1;
 
-        React.useEffect(() => {
-            state.mutate(state => {
-                if (!state.directory)
-                    return;
-
-                if (!state.projectSpecific.get(state.directory))
-                    state.projectSpecific.set(state.directory, {});
-
-                state.projectSpecific.set(state.directory, {
-                    ...state.projectSpecific.get(state.directory) ?? {},
-                    build
-                });
-            })
-        }, [build]);
-
         return <section className={"build-gui"}>
             <style scoped>{style}</style>
 
@@ -87,7 +72,7 @@ export class BuildGUI implements Editor {
                     <div className={"type"}>{}</div>
                     <div className={"label"}>{trigger.label}</div>
                     <div className={"button-group actions"}>
-                        <Button symbolic variant={"secondary"} icon={"\ue3c9"} onActivate={() => state.mutate(state => state.viewport.openEditors.open(new BuildTriggerEditor(trigger)))}/>
+                        <Button symbolic variant={"secondary"} icon={"\ue3c9"} onActivate={() => state.mutate(state => state.workspace?.state.viewport.openEditors.open(new BuildTriggerEditor(trigger)))}/>
                         <Button symbolic variant={"danger"} icon={"\ue872"}/>
                     </div>
                 </div>)}

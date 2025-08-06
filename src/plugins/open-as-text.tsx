@@ -6,6 +6,7 @@ import TextEditor from "../text-editor.js";
 import Modal from "../widgets/modal.js";
 import FileTree from "../file-tree.js";
 import { javascript } from '@codemirror/lang-javascript';
+import {File} from '../workspace.js';
 
 export default class OpenAsText extends Plugin {
     register(mgr: GlobalState) {
@@ -29,11 +30,11 @@ export default class OpenAsText extends Plugin {
                 req.preventDefault();
                 for (const ext in OpenAsText.extensionMap)
                     if (req.file.name.toLocaleLowerCase().endsWith(ext.toLocaleLowerCase())) {
-                        state.viewport.openEditors.open(new TypedTextEditor(req.file, OpenAsText.extensionMap[ext as keyof typeof OpenAsText.extensionMap]));
+                        state.workspace?.state.viewport.openEditors.open(new TypedTextEditor(req.file, OpenAsText.extensionMap[ext as keyof typeof OpenAsText.extensionMap]));
                         return;
                     }
 
-                state.viewport.openEditors.open(new TextEditor(req.file));
+                state.workspace?.state.viewport.openEditors.open(new TextEditor(req.file));
             });
         });
     }
@@ -47,7 +48,7 @@ export default class OpenAsText extends Plugin {
 }
 
 class TypedTextEditor extends TextEditor {
-    constructor(file: FileSystemFileHandle, private readonly extension: cm_state.Extension) {
+    constructor(file: File, private readonly extension: cm_state.Extension) {
         super(file);
     }
 

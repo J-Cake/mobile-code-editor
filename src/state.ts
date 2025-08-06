@@ -8,6 +8,7 @@ import Plugin from "./plugin.js";
 import OpenAsText from "./plugins/open-as-text.js";
 import {SettingsPlugin} from "./plugins/settings.js";
 import Build, {BuildStep, Group, Trigger} from "./plugins/build.js";
+import Workspace from "./workspace.js";
 
 export interface Settings {
     excludeFiles: (string | RegExp)[]
@@ -26,14 +27,10 @@ interface CustomEventTarget {
 }
 
 export interface State {
-    viewport: Viewport;
-    directory: FileSystemDirectoryHandle | null,
-    observer: ChangeNotifier | null,
+    workspace?: Workspace,
+    availableWorkspaces: Workspace[],
     settings: Settings,
     plugins: Plugin[],
-
-    projectSpecific: Map<FileSystemDirectoryHandle, ProjectState>,
-
     commands: {
         registered: {
             [id in Command['id']]: Command
@@ -45,7 +42,8 @@ export interface State {
 }
 
 export interface ProjectState {
-    build?: BuildState
+    build?: BuildState,
+    viewport: Viewport
 }
 
 export interface BuildState {
@@ -67,12 +65,12 @@ export const toPersistent = Symbol.for('serialise');
 export const fromPersistent = Symbol.for('deserialise');
 
 export interface Cloneable<Serialised = any, Self = any> {
-    [toPersistent](seen?: WeakSet<object>): SerialisedObject<Serialised, Self>;
+    [toPersistent](seen?: WeakSet<object>): Promise<SerialisedObject<Serialised, Self>>;
 }
 
 export interface SerialisedObject<Data = any, Self = any> {
     data: Data,
-    [fromPersistent](data: Data): Self;
+    [fromPersistent](data: Data): Promise<Self>;
 }
 
 const isCloneable = (obj: any): obj is Cloneable => obj && typeof obj[toPersistent] === 'function';
@@ -122,18 +120,13 @@ export function deserialise(obj: any): any {
 
 export class GlobalState extends EventTarget {
     #state: State = {
-        directory: null,
-        observer: null,
-        viewport: {
-            openEditors: new EditorList(this)
-        },
+        availableWorkspaces: [],
         settings: {
             excludeFiles: [
                 /\/\./
             ]
         },
         plugins: [new OpenAsText, new SettingsPlugin, new Build],
-        projectSpecific: new Map(),
         commands: {
             registered: {},
             keybindings: {}
@@ -149,8 +142,7 @@ export class GlobalState extends EventTarget {
         this.#save = debounce(async () => {
             if (this.#dbHandle)
                 await this.#dbHandle.put('state', {
-                    directory: this.#state.directory,
-                    projectSpecific: this.#state.projectSpecific,
+
                 }, 'app-state');
             else
                 this.on('state-loaded', () => this.#save(), {once: true});
@@ -168,10 +160,6 @@ export class GlobalState extends EventTarget {
         this.#dbHandle = db;
 
         const saved = await db.get('state', 'app-state');
-
-        // this.#state = deserialise(saved ?? this.#state);
-        this.#state.directory = saved?.directory ?? null;
-        this.#state.projectSpecific = saved?.projectSpecific ?? null;
 
         await this.#loadPlugins();
         this.#emit('state-loaded', this.#state);
@@ -213,26 +201,6 @@ export class GlobalState extends EventTarget {
         });
 
         return mask;
-    }
-
-    public openProject(dir: FileSystemDirectoryHandle) {
-        this.mutate(state => {
-            state.directory = dir;
-            if (!state.projectSpecific.has(dir))
-                state.projectSpecific.set(dir, {});
-
-            // state.observer = new ChangeNotifier(dir);
-        });
-
-        this.#emit('open-project', dir);
-    }
-
-    public closeProject() {
-        this.mutate(state => {
-            state.directory = null;
-        });
-
-        this.#emit('close-project');
     }
 
     public loadPlugin(plugin: Plugin) {

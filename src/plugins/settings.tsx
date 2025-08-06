@@ -13,7 +13,7 @@ export class SettingsPlugin extends Plugin {
             description: 'Open the settings window',
             shortcut: 'ctrl+alt+s',
 
-            run: mgr => mgr.mutate(state => state.viewport.openEditors.open(new SettingsEditor())),
+            run: mgr => mgr.mutate(state => state.workspace?.state.viewport.openEditors.open(new SettingsEditor())),
         });
     }
 }

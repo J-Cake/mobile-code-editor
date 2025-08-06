@@ -25,7 +25,7 @@ export default class BuildTriggerEditor implements Editor {
     }
 
     render(): React.ReactNode {
-        const build = state.useMask(state => (state.directory && state.projectSpecific.get(state.directory))?.build);
+        const build = state.useMask(state => state.workspace?.state.build);
 
         if (!build)
             return <h1>{"No project is open."}</h1>;

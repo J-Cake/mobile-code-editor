@@ -28,23 +28,23 @@ const toPersistent: typeof import('./state.js')['toPersistent'] = Symbol.for('se
 export class EditorList implements Iterable<Editor>, Cloneable<{ editors: Record<EditorId, { editor: Editor, id: EditorId, open: boolean }> }> {
 
     constructor(private state: GlobalState) {}
-    private static [fromPersistent](data: { editors: Record<EditorId, { editor: Editor, id: EditorId, open: boolean }>, nextId: number }): EditorList {
+    private static async [fromPersistent](data: { editors: Record<EditorId, { editor: Editor, id: EditorId, open: boolean }>, nextId: number }): Promise<EditorList> {
         const ed = new EditorList(state);
         // @ts-expect-error TS2540
-        ed.#editors = deserialise(data.editors);
+        ed.#editors = await deserialise(data.editors);
         return ed;
     }
 
-    [toPersistent](this: EditorList, seen: WeakSet<object>): SerialisedObject<{
-        editors: Record<EditorId, { editor: Editor, id: EditorId, open: boolean }>,
-        nextId: number
-    }, EditorList> {
+    async [toPersistent](this: EditorList, seen: WeakSet<object>): Promise<SerialisedObject<{
+        editors: Record<EditorId, { editor: Editor; id: EditorId; open: boolean; }>;
+        nextId: number;
+    }, EditorList>> {
         return {
             data: {
                 editors: serialise(this.#editors, seen),
                 nextId: this.nextId
             },
-            [fromPersistent]: (data: { editors: Record<EditorId, { editor: Editor, id: EditorId, open: boolean }>, nextId: number }): EditorList => EditorList[fromPersistent](data)
+            [fromPersistent]: async (data: { editors: Record<EditorId, { editor: Editor, id: EditorId, open: boolean }>, nextId: number }): Promise<EditorList> => EditorList[fromPersistent](data)
         };
     }
 
@@ -120,7 +120,8 @@ export interface Editor<T = any> {
 }
 
 export default function() {
-    const editors = state.useMask(state => state.viewport.openEditors);
+    const editors = state.useMask(state => state.workspace?.state.viewport.openEditors!);
+
     const [active, setActive] = React.useState(editors.newest ?? null);
 
     state.on('open', e => setActive(e.view));

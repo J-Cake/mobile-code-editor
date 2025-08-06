@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as cm from 'codemirror';
-import * as cm_view from '@codemirror/view';
 import * as cm_state from '@codemirror/state';
 
 import state, {ChangeNotifier, Cloneable, Command,
@@ -9,6 +8,7 @@ import state, {ChangeNotifier, Cloneable, Command,
     SerialisedObject,
     toPersistent
 } from "./state.js";
+import {File, readUtf8, ResourceUrl, writeUtf8} from './workspace.js';
 import {Editor} from "./viewport.js";
 
 import style from "@css/text-editor.css?raw";
@@ -18,7 +18,7 @@ export default class TextEditor implements Editor, Cloneable {
 
     async getState(): Promise<cm_state.EditorStateConfig> {
         return {
-            doc: await this.file.getFile().then(file => file.text()),
+            doc: await readUtf8(this.file),
             extensions: [
                 cm.basicSetup,
                 cm.EditorView.updateListener.of(update => update.docChanged && this.save())
@@ -26,12 +26,13 @@ export default class TextEditor implements Editor, Cloneable {
         };
     }
 
-    constructor(protected file: FileSystemFileHandle) {
+    static async fromUrl(url: ResourceUrl): Promise<TextEditor> {
+        return await new Promise(ok => state.mutate(state => state.workspace?.get(url)));
+    }
+
+    constructor(protected file: File) {
         state.pushState(state => {
-            if (state.observer instanceof ChangeNotifier)
-                state.observer.watch(this.file, async () => {
-                    return void this.view?.setState(cm_state.EditorState.create(await this.getState()));
-                });
+            // TODO: Watch for changes
 
             return {};
         })
@@ -39,21 +40,18 @@ export default class TextEditor implements Editor, Cloneable {
             const content = this.view?.state.doc.toString();
 
             if (typeof content == 'string')
-                await this.file.createWritable()
-                    .then(async writable => await writable.write(content) ?? writable)
-                    .then(res => res.close());
+                await writeUtf8(this.file, content);
         }, 2000);
     }
 
     listContextActions(): Command[] {
         return [];
     }
-
-    [toPersistent](): SerialisedObject<FileSystemFileHandle, TextEditor> {
+    async [toPersistent](): Promise<SerialisedObject<ResourceUrl, TextEditor>> {
         return {
-            data: this.file,
-            [fromPersistent](file: FileSystemFileHandle): TextEditor {
-                return new TextEditor(file);
+            data: this.file.url(),
+            async [fromPersistent](file: ResourceUrl): Promise<TextEditor> {
+                return await TextEditor.fromUrl(file);
             }
         }
     }
@@ -65,12 +63,6 @@ export default class TextEditor implements Editor, Cloneable {
 
     async beforeClose(): Promise<void> {
         await this.save();
-        state.pushState(state => {
-            if (state.observer instanceof ChangeNotifier)
-                state.observer.stopWatching(this.file);
-
-            return {};
-        })
     }
 
     save: () => Promise<void>;
@@ -79,8 +71,7 @@ export default class TextEditor implements Editor, Cloneable {
         const ref = React.useRef<HTMLDivElement>(null);
 
         React.useEffect(() => {
-            this.file.getFile()
-                .then(file => file.text())
+            readUtf8(this.file)
                 .then(async file => {
                     this.view = new cm.EditorView({
                         parent: ref.current!,

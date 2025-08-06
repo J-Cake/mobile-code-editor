@@ -11,6 +11,7 @@ import Viewport from './viewport.js';
 import '@css/main.css';
 import Modal from './widgets/modal.js';
 import ContextMenu from "./widgets/context-menu.js";
+import {ListBox} from "./widgets/list-box.js";
 
 export const root = DOM.createRoot(document.querySelector('#root')!);
 
@@ -73,9 +74,9 @@ mgr.on('state-loaded', ({ detail: state }) => {
 });
 
 export default function App() {
-    const directory = mgr.useMask(state => state.directory);
+    const state = mgr.useMask(state => state);
 
-    if (directory)
+    if (state.workspace)
         return <>
             <Viewport/>
 
@@ -85,12 +86,19 @@ export default function App() {
         </>
     else
         return <CentreLayout>
-            <p>{"No project is open. Select a directory to begin."}</p>
+            <p>{"No workspace is open."}</p>
             <Button icon="&#xe2c8;"
                     variant={"primary"}
-                    onActivate={() => window.showDirectoryPicker()
-                        .then(dir => mgr.openProject(dir))}>
-                {"Open Project"}
+                    // onActivate={() => window.showDirectoryPicker()
+                    //     .then(dir => mgr.openProject(dir))}>
+                >
+                {"Create workspace"}
             </Button>
+
+            <ListBox>
+                {state.availableWorkspaces.map(workspace => <Button variant="tertiary">
+                    {workspace.label}
+                </Button>)}
+            </ListBox>
         </CentreLayout>;
 }
