@@ -86,7 +86,7 @@ export default class Workspace {
 
     label: string;
 
-    constructor(readonly id: WorkspaceID, options: Partial<Workspace>) {
+    constructor(readonly id: WorkspaceID, options: Partial<Workspace> = {}) {
         mgr.mutate(state => this.settings = structuredClone(state.settings));
 
         this.state = {
@@ -390,5 +390,11 @@ export class ResourceUrl {
 
     static fromParts(provider: ProviderID, path: PathNavigationList): ResourceUrl {
         return new ResourceUrl(ResourceUrl.toUrl(provider, path), { provider, path });
+    }
+}
+
+export class ChangeWorkspaceEvent extends Event {
+    public constructor(public readonly workspace: Workspace) {
+        super('change-workspace')
     }
 }

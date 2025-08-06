@@ -8,7 +8,7 @@ import Plugin from "./plugin.js";
 import OpenAsText from "./plugins/open-as-text.js";
 import {SettingsPlugin} from "./plugins/settings.js";
 import Build, {BuildStep, Group, Trigger} from "./plugins/build.js";
-import Workspace from "./workspace.js";
+import Workspace, {ChangeWorkspaceEvent} from "./workspace.js";
 
 export interface Settings {
     excludeFiles: (string | RegExp)[]
@@ -21,8 +21,8 @@ interface CustomEventTarget {
     'state-loaded': CustomEvent<State>,
     'state-changed': CustomEvent<State>,
     'edit-list-changed': CustomEvent<EditorList>,
-    'open-project': CustomEvent<FileSystemDirectoryHandle>,
-    'close-project': CustomEvent<void>,
+    'change-workspace': CustomEvent<Workspace>,
+    'close-workspace': CustomEvent<Workspace>,
     'register-command': CustomEvent<Command>,
 }
 
@@ -241,8 +241,11 @@ export class GlobalState extends EventTarget {
             console.warn(`Command ${command} not found`);
     }
 
-    #emit<Event extends keyof CustomEventTarget>(event: Event, data?: CustomEventTarget[Event] extends CustomEvent<infer K> ? K : never) {
-        this.dispatchEvent(new CustomEvent(String(event), {detail: data}));
+    #emit<Event extends keyof CustomEventTarget>(event: Event, data?: CustomEventTarget[Event] extends CustomEvent<infer K> ? K : CustomEventTarget[Event]) {
+        if (data instanceof Event && !(data instanceof CustomEvent))
+            this.dispatchCommand(event, data);
+        else
+            this.dispatchEvent(new CustomEvent(String(event), {detail: data}));
     }
 
     public on<K extends keyof CustomEventTarget>(type: K, callback: (event: CustomEventTarget[K]) => void, options?: AddEventListenerOptions) {
@@ -251,6 +254,19 @@ export class GlobalState extends EventTarget {
 
     async #loadPlugins() {
         await Promise.all(this.#state.plugins.map(plugin => plugin.register(this)));
+    }
+
+    public createAndActivateWorkspace(): Workspace {
+        const workspace = new Workspace(this.#state.availableWorkspaces.reduce((a, i) => Math.max(a, i.id), 0) + 1);
+
+        this.pushState(state => ({
+            workspace,
+            availableWorkspaces: state.availableWorkspaces.concat(workspace)
+        }));
+
+        this.#emit('change-workspace', workspace);
+
+        return workspace;
     }
 }
 
@@ -292,7 +308,7 @@ export class ChangeNotifier {
     }
 }
 
-export const state =  new class extends GlobalState {
+export const state = new class extends GlobalState {
     constructor() {
         super();
     }

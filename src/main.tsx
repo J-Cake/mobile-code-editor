@@ -12,6 +12,7 @@ import '@css/main.css';
 import Modal from './widgets/modal.js';
 import ContextMenu from "./widgets/context-menu.js";
 import {ListBox} from "./widgets/list-box.js";
+import Workspace from "./workspace.js";
 
 export const root = DOM.createRoot(document.querySelector('#root')!);
 
@@ -75,6 +76,7 @@ mgr.on('state-loaded', ({ detail: state }) => {
 
 export default function App() {
     const state = mgr.useMask(state => state);
+    React.useEffect(() => console.log(state), [state]);
 
     if (state.workspace)
         return <>
@@ -89,9 +91,7 @@ export default function App() {
             <p>{"No workspace is open."}</p>
             <Button icon="&#xe2c8;"
                     variant={"primary"}
-                    // onActivate={() => window.showDirectoryPicker()
-                    //     .then(dir => mgr.openProject(dir))}>
-                >
+                    onActivate={() => mgr.createAndActivateWorkspace()}>
                 {"Create workspace"}
             </Button>
 
