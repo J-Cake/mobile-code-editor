@@ -1,17 +1,26 @@
 import mgr, {GlobalState, ProjectState, Settings} from "./state.js";
 import {EditorList} from "./viewport.js";
-import {Directory} from "./file-tree.js";
+import {DirectoryEntry} from "./file-tree.js";
 
 export default class Workspace {
     resourceProviders: ResourceProvider[] = [new class implements ResourceProvider {
         id: ProviderID;
         resources: WorkspaceDirectory;
+        name: string = "Workspace";
+
+        type() {
+            return {
+                name: this.name,
+                icon: '\uf3c8',
+                icon_open: '\uf3c8'
+            }
+        }
 
         constructor() {
             const id = this.id = 0;
             this.resources = new class extends WorkspaceDirectory {
                 constructor() {
-                    super("", null as any);
+                    super("/", null as any);
                 }
 
                 url(): ResourceUrl {
@@ -172,8 +181,8 @@ export interface Resource {
     url(): ResourceUrl
 }
 
-const isDirectory = async <T extends Resource>(res: T): Promise<T extends Directory ? true : false> => await res.metadata().then(meta => meta.type == 'directory') as any;
-const isFile = async <T extends Resource>(res: T): Promise<T extends File ? true : false> => await res.metadata().then(meta => meta.type == 'file') as any;
+export const isDirectory = async <T extends Resource>(res: T): Promise<T extends Directory ? true : false> => await res.metadata().then(meta => meta.type == 'directory') as any;
+export const isFile = async <T extends Resource>(res: T): Promise<T extends File ? true : false> => await res.metadata().then(meta => meta.type == 'file') as any;
 
 export interface File extends Resource {
     read(bytes: ByteRange): Promise<Uint8Array>;
@@ -202,6 +211,8 @@ export async function writeUtf8(file: File, data: string): Promise<void> {
 
     const enc = new TextEncoder();
 
+    console.log("Saving", file);
+
     return await file.write({ offset: 0, length: (<FileMetadata>meta).size }, enc.encode(data));
 }
 
@@ -216,6 +227,7 @@ export type PathNavigationList = string[];
 
 export interface ResourceProvider  {
     id: ProviderID,
+    type(): { icon: string, icon_open: string, name: string }
     get(nav: PathNavigationList): Promise<Resource>;
     getMetadata(nav: PathNavigationList): Promise<Metadata>;
     create(nav: PathNavigationList): Promise<File>;
@@ -382,6 +394,10 @@ export class ResourceUrl {
 
     toString() {
         return ResourceUrl.toUrl(this.components.provider, this.components.path);
+    }
+
+    append(path: Path): ResourceUrl {
+        return ResourceUrl.fromParts(this.components.provider, this.components.path.concat(path.split("/")))
     }
 
     static toUrl(id: ProviderID, nav: PathNavigationList): string {

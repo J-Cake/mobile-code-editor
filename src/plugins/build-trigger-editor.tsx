@@ -16,10 +16,6 @@ export default class BuildTriggerEditor implements Editor {
 
     }
 
-    beforeClose(): void | Promise<void> {
-        return undefined;
-    }
-
     listContextActions(): Command[] {
         return [];
     }

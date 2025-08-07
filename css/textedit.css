@@ -1,0 +1,28 @@
+input[type="text"], input[type="password"], input[type="search"] {
+    padding: var(--spacing-s) var(--spacing-m);
+    cursor: pointer;
+
+    border: none;
+
+    display: flex;
+    gap: var(--spacing-m);
+
+    text-align: left;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-s);
+}
+
+:is(input[type="text"], input[type="password"], input[type="search"]) {
+    background: var(--background);
+    border: var(--border-dull);
+    border-color: var(--secondary-solid);
+    color: var(--foreground-secondary);
+}
+
+:is(input[type="text"], input[type="password"], input[type="search"]):focus {
+    outline: none;
+
+    box-shadow: var(--shadow-l);
+}

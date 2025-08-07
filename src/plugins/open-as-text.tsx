@@ -18,7 +18,7 @@ export default class OpenAsText extends Plugin {
             icon: '\ue97a',
             run(state: GlobalState, payload?: any) {
                 new Modal()
-                    .header('Project Files')
+                    .header('Workspace Contents')
                     .show(<>
                         <FileTree />
                     </>)

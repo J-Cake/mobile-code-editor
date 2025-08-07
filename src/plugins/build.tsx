@@ -35,9 +35,9 @@ export default class Build extends Plugin {
 }
 
 export class BuildGUI implements Editor {
-    beforeClose?(this: Editor): void | Promise<void> {
-        throw new Error('Method not implemented.');
-    }
+    // beforeClose?(this: Editor): void | Promise<void> {
+    //     throw new Error('Method not implemented.');
+    // }
     listContextActions(): Command[] {
         return [];
     }

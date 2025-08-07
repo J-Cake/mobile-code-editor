@@ -19,9 +19,9 @@ export class SettingsPlugin extends Plugin {
 }
 
 export class SettingsEditor implements Editor {
-    beforeClose?(this: Editor<any>): void | Promise<void> {
-        throw new Error('Method not implemented.');
-    }
+    // beforeClose?(this: Editor<any>): void | Promise<void> {
+    //     throw new Error('Method not implemented.');
+    // }
     listContextActions(): Command[] {
         return [];
     }

@@ -76,7 +76,6 @@ mgr.on('state-loaded', ({ detail: state }) => {
 
 export default function App() {
     const state = mgr.useMask(state => state);
-    React.useEffect(() => console.log(state), [state]);
 
     if (state.workspace)
         return <>

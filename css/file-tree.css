@@ -1,4 +1,4 @@
-.file-tree :is(ul, li, summary, .file-tree-directory) {
+.file-tree :is(ul, li, summary, .file-tree-directory, .file-tree-provider) {
     list-style-type: none;
     margin: 0;
     padding: 0;
