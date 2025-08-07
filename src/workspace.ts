@@ -1,6 +1,5 @@
-import mgr, {GlobalState, ProjectState, Settings} from "./state.js";
+import mgr, {ProjectState, Settings} from "./state.js";
 import {EditorList} from "./viewport.js";
-import {DirectoryEntry} from "./file-tree.js";
 
 export default class Workspace {
     resourceProviders: ResourceProvider[] = [new class implements ResourceProvider {

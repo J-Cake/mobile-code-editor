@@ -1,8 +1,8 @@
 import * as React from "react";
 
 import {Editor} from "../viewport.js";
-import Build, {BuildGUI, BuildStep, Group, Trigger} from "./build.js";
-import {BuildState, Command, state} from "../state.js";
+import {Trigger} from "./build.js";
+import {Command, state} from "../state.js";
 import Button from "../widgets/button.js";
 
 import style from "@css/build.css?raw";

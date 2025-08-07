@@ -1,18 +1,14 @@
 import React from 'react';
 import * as DOM from 'react-dom/client';
 
-import mgr, {GlobalState, State} from './state.js';
+import mgr, {GlobalState} from './state.js';
 import Button from "./widgets/button.js";
 import CentreLayout from "./layouts/centre-layout.js";
-
-import FileTree from "./file-tree.js";
 import Viewport from './viewport.js';
 
 import '@css/main.css';
-import Modal from './widgets/modal.js';
 import ContextMenu from "./widgets/context-menu.js";
 import {ListBox} from "./widgets/list-box.js";
-import Workspace from "./workspace.js";
 
 export const root = DOM.createRoot(document.querySelector('#root')!);
 
@@ -56,7 +52,7 @@ class ActionMenu extends ContextMenu {
     }
 }
 
-mgr.on('state-loaded', ({ detail: state }) => {
+mgr.on('state-loaded', () => {
     window.getStateManager = () => mgr;
 
     window.actionMenu = new ActionMenu();
@@ -66,7 +62,7 @@ mgr.on('state-loaded', ({ detail: state }) => {
         id: 'command-bar',
         icon: '\uF1F8',
         shortcut: 'ctrl+p',
-        run(mgr) {
+        run() {
             window.actionMenu.show();
         },
     });

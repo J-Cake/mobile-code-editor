@@ -1,11 +1,9 @@
 import * as React from 'react';
 
 import state from "./state.js";
-import If from "./widgets/if.js";
 
 import style from "@css/file-tree.css?raw";
 import Button from "./widgets/button.js";
-import TextEditor from "./text-editor.js";
 import ContextMenu from "./widgets/context-menu.js";
 import {
     File,
@@ -26,7 +24,7 @@ export const icons = {
     defaultFile: '\ue66d'
 } satisfies Record<string, string>;
 
-export default function FileTree(props: {}) {
+export default function FileTree() {
     const project = state.useMask(state => state.workspace);
 
     if (!project)

@@ -16,7 +16,7 @@ export default class OpenAsText extends Plugin {
             id: "project-files",
             shortcut: 'shift shift',
             icon: '\ue97a',
-            run(state: GlobalState, payload?: any) {
+            run() {
                 new Modal()
                     .header('Workspace Contents')
                     .show(<>

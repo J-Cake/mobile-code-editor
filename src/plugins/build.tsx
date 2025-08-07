@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import Plugin from "../plugin.js";
-import {BuildState, Command, GlobalState, state} from "../state.js";
+import {Command, GlobalState, state} from "../state.js";
 import {Editor} from "../viewport.js";
 import Button from "../widgets/button.js";
 
