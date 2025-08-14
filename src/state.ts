@@ -9,12 +9,13 @@ import OpenAsText from "./plugins/open-as-text.js";
 import {SettingsPlugin} from "./plugins/settings.js";
 import Build, {BuildStep, Group, Trigger} from "./plugins/build.js";
 import Workspace, {ChangeWorkspaceEvent} from "./workspace.js";
+import GestureResponder, {Gesture} from "./gesture-responder.js";
 
 export interface Settings {
     excludeFiles: (string | RegExp)[]
 }
 
-interface CustomEventTarget {
+export interface CustomEventTarget {
     'open': OpenEvent,
     'request-open': RequestOpenEvent,
     'request-close': CustomEvent<Editor>
@@ -135,8 +136,12 @@ export class GlobalState extends EventTarget {
 
     #dbHandle?: idb.IDBPDatabase;
 
+    #gesture: GestureResponder;
+
     protected constructor() {
         super();
+
+        this.#gesture = new GestureResponder();
 
         this.#restore();
         this.#save = debounce(async () => {
@@ -267,6 +272,10 @@ export class GlobalState extends EventTarget {
         this.#emit('change-workspace', workspace);
 
         return workspace;
+    }
+
+    public beginGesture<State extends object>(e: TouchEvent, gesture: Gesture<State>) {
+        this.#gesture.beginGesture(e, gesture)
     }
 }
 
