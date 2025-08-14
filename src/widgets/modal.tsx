@@ -13,7 +13,7 @@ export default class Modal extends EventTarget {
     #header?: React.ReactNode;
 
     containerFactory(): HTMLDialogElement {
-        const el = document.querySelector('#modals')!
+        const el = document.querySelector("#modals")!
             .appendChild(document.createElement('dialog'));
 
         el.setAttribute('popover', 'auto');
@@ -49,69 +49,22 @@ export default class Modal extends EventTarget {
         });
 
         modal.addEventListener('touchstart', e => state.beginGesture<ProjectManagementModalGestureState>(e, {
-            minimumDuration: 50,
+            minimumDuration: 3,
+
+            minYDistance: 0.15,
 
             onBegin: () => ({
                 startedOnFrame: e.target == modal,
                 isScrollEvent: false
             }),
 
-            onMove: (_, dy) => modal.style.setProperty('transform', `translateY(${dy}px)`),
+            onMove: (_, dy) => modal.style.setProperty('transform', `translateY(${
+                modal.classList.contains('minimised') ? Math.min(0, dy) : Math.max(0, dy)
+            }px)`),
 
-            onFinish(state: ProjectManagementModalGestureState) {
-                modal.classList.toggle('minimised');
-            }
+            onFinish: (state: ProjectManagementModalGestureState) => this.close(),
+            onFail: () => modal.style.removeProperty('transform'),
         }));
-
-
-
-
-
-
-        // let gesture: ({ start: null } | {
-        //     start: number,
-        //     scrollSamples: number,
-        //     distance: number,
-        //     scrollEvents: boolean,
-        //     startedOnFrame: boolean
-        // }) = {start: null};
-        // modal.addEventListener('touchstart', function (this: Modal, e: TouchEvent) {
-        //     gesture = {
-        //         start: Math.min(window.innerHeight, Math.max(e.changedTouches[0].clientY)),
-        //         distance: 0,
-        //         scrollSamples: 0,
-        //         scrollEvents: false,
-        //         startedOnFrame: e.target == modal
-        //     };
-        // }.bind(this), {passive: true});
-        // modal.addEventListener('touchmove', function (this: Modal, e: TouchEvent) {
-        //     if (typeof gesture.start == 'number')
-        //         gesture.scrollSamples++;
-        //
-        //     if (typeof gesture.start == 'number' && !gesture.scrollEvents && (gesture.startedOnFrame || gesture.scrollSamples > 3)) {
-        //         gesture.distance = e.changedTouches[0].clientY - gesture.start; // Math.min(window.innerHeight, Math.max(e.changedTouches[0].clientY))// - gesture.start;
-        //
-        //         if (modal.classList.contains('minimised'))
-        //             modal.style.setProperty('transform', `translateY(${gesture.distance}px)`);
-        //         else
-        //             modal.style.setProperty('transform', `translateY(calc(${gesture.distance}px))`);
-        //     }
-        // }.bind(this), {passive: true});
-        // modal.addEventListener('touchend', function (this: Modal, e: TouchEvent) {
-        //     if (typeof gesture.start == 'number')
-        //         if (gesture.distance > 50)
-        //             this.minimise();
-        //         else if (gesture.distance < -50)
-        //             this.root?.showPopover();
-        //
-        //     Object.assign(gesture, {start: null});
-        //
-        //     modal.style.removeProperty('transform');
-        // }.bind(this), {passive: true});
-        // modal.addEventListener('scroll', function () {
-        //     if (typeof gesture.start == 'number')
-        //         gesture.scrollEvents = true;
-        // })
 
         this.renderer = dom.createRoot(modal);
 

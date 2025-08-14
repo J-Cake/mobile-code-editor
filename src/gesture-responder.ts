@@ -11,10 +11,22 @@ export default class GestureResponder extends EventTarget {
             const gesture = this.gestures.shift();
             if (!gesture || gesture.samples < gesture.gesture.minimumDuration) return;
 
+            const pastMinDistance = {
+                x: typeof gesture.gesture.minXDistance == 'number'
+                    ? Math.abs(gesture.gesture.minXDistance < 1 ? gesture.distanceX / document.body.clientWidth : gesture.distanceX) >= gesture.gesture.minXDistance
+                    : true,
+                y: typeof gesture.gesture.minYDistance == 'number'
+                    ? Math.abs(gesture.gesture.minYDistance < 1 ? gesture.distanceY / document.body.clientHeight : gesture.distanceY) >= gesture.gesture.minYDistance
+                    : true
+            };
+
+            if (!pastMinDistance.x || !pastMinDistance.y)
+                return gesture.gesture.onFail();
+
             const event = gesture.gesture.onFinish(gesture.state);
 
             if (event)
-            state.dispatchCommand(event.event, event.payload);
+                state.dispatchCommand(event.event, event.payload);
         });
     }
 
@@ -58,10 +70,13 @@ export interface Gesture<State extends object> {
 
     minimumDuration: number;
 
+    minXDistance?: number;
+    minYDistance?: number;
+
     onBegin(): void | State,
     onMove(x: number, y: number): void | State;
     onFinish(state: State): void | EmitEvent;
-
+    onFail(): void;
 }
 
 export interface RunningGesture<State extends object> {
