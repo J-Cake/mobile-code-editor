@@ -124,7 +124,7 @@
 	}
 
 	.modal.minimised {
-		top: calc(100vh - var(--handle));
+		transform: translateY(calc(100% - var(--handle)));
 		width: 100%;
 
 		box-shadow: none;

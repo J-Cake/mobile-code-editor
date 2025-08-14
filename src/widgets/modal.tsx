@@ -18,9 +18,6 @@ export default class Modal extends EventTarget {
 
         el.setAttribute('popover', 'auto');
 
-        // if (this.minimised)
-        //     el.classList.add('minimised');
-
         return el;
     }
 
@@ -51,7 +48,7 @@ export default class Modal extends EventTarget {
         modal.addEventListener('touchstart', e => state.beginGesture<ProjectManagementModalGestureState>(e, {
             minimumDuration: 3,
 
-            minYDistance: 0.15,
+            minYDistance: 0.1,
 
             onBegin: () => ({
                 startedOnFrame: e.target == modal,
@@ -62,7 +59,7 @@ export default class Modal extends EventTarget {
                 modal.classList.contains('minimised') ? Math.min(0, dy) : Math.max(0, dy)
             }px)`),
 
-            onFinish: (state: ProjectManagementModalGestureState) => this.close(),
+            onFinish: (state: ProjectManagementModalGestureState, _, dy) => void (dy > 0 && this.close()),
             onFail: () => modal.style.removeProperty('transform'),
         }));
 
@@ -92,13 +89,9 @@ export default class Modal extends EventTarget {
         return this;
     }
 
-    minimise() {
-        this.dispatchEvent(new CustomEvent('minimise', {detail: true}));
-    }
-
     close() {
         this.root?.animate([
-            {transform: 'translateY(0)'},
+            {transform: 'translateY(100%)'},
         ], {
             duration: 100,
             iterations: 1,

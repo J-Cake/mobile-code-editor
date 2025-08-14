@@ -1,14 +1,15 @@
 import React from 'react';
 import * as DOM from 'react-dom/client';
 
-import mgr, {GlobalState} from './state.js';
+import mgr, {Command, GlobalState} from './state.js';
 import Button from "./widgets/button.js";
 import CentreLayout from "./layouts/centre-layout.js";
 import Viewport from './viewport.js';
 
 import '@css/main.css';
-import ContextMenu from "./widgets/context-menu.js";
+import ContextMenu, {MenuOption} from "./widgets/context-menu.js";
 import {ListBox} from "./widgets/list-box.js";
+import Drawer from "./widgets/drawer.js";
 
 export const root = DOM.createRoot(document.querySelector('#root')!);
 
@@ -18,22 +19,27 @@ root.render(<CentreLayout>
 
 interface NewWindow {
     getStateManager(): GlobalState,
-    actionMenu: ContextMenu
+    actionMenu: Drawer
 }
 
 declare var window: NewWindow & typeof globalThis;
 
-class ActionMenu extends ContextMenu {
+class ActionMenu extends Drawer {
+
+    cx: ContextMenu;
+
     constructor() {
         super();
 
+        this.cx = new ContextMenu();
+
         mgr.mutate(state => {
             for (const cmd in state.commands.registered)
-                this.addOption({ command: cmd });
+                this.cx.addOption({ command: cmd });
         });
 
         this.header('All commands');
-        super.show();
+        this.show();
         this.minimise();
     }
 
@@ -44,7 +50,7 @@ class ActionMenu extends ContextMenu {
     }
 
     show() {
-        this.root?.showPopover();
+        super.show(this.cx.content());
     }
 
     close() {
@@ -63,7 +69,7 @@ mgr.on('state-loaded', () => {
         icon: '\uF1F8',
         shortcut: 'ctrl+p',
         run() {
-            window.actionMenu.show();
+            window.actionMenu.maximise();
         },
     });
 

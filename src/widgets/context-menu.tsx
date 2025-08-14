@@ -31,7 +31,11 @@ export default class ContextMenu extends Modal {
     }
 
     public show() {
-        super.show(this.options.map((option, a) => {
+        super.show(this.content())
+    }
+
+    content() {
+        return this.options.map((option, a) => {
             if (option === 'separator')
                 return <div className={"context-menu-item context-menu-separator"} key={`option-${a}`} />;
             else if (typeof option == 'object' && 'command' in option)
@@ -46,7 +50,7 @@ export default class ContextMenu extends Modal {
                         {option.label}
                     </Button>
                 </div>;
-        }))
+        });
     }
 }
 

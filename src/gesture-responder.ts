@@ -23,7 +23,7 @@ export default class GestureResponder extends EventTarget {
             if (!pastMinDistance.x || !pastMinDistance.y)
                 return gesture.gesture.onFail();
 
-            const event = gesture.gesture.onFinish(gesture.state);
+            const event = gesture.gesture.onFinish(gesture.state, gesture.distanceX, gesture.distanceY);
 
             if (event)
                 state.dispatchCommand(event.event, event.payload);
@@ -75,7 +75,7 @@ export interface Gesture<State extends object> {
 
     onBegin(): void | State,
     onMove(x: number, y: number): void | State;
-    onFinish(state: State): void | EmitEvent;
+    onFinish(state: State, dx: number, dy: number): void | EmitEvent;
     onFail(): void;
 }
 
