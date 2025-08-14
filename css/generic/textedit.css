@@ -7,11 +7,18 @@ input[type="text"], input[type="password"], input[type="search"] {
     display: flex;
     gap: var(--spacing-m);
 
+    font-size: var(--font-size-m);
+
     text-align: left;
     align-items: center;
     justify-content: center;
 
     border-radius: var(--radius-s);
+}
+
+:is(input[type="text"], input[type="password"], input[type="search"]).stretch {
+    flex: 1;
+    grid-column: 1 / -1;
 }
 
 :is(input[type="text"], input[type="password"], input[type="search"]) {

@@ -1,6 +1,6 @@
 @import 'theme.css';
 @import 'layout.css';
-@import 'textedit.css';
+@import 'inline.css';
 
 :root, body, #root {
     background: var(--background);

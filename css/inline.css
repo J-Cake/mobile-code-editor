@@ -1,0 +1,8 @@
+/*
+Used when there is no need to create a new component for some functionality.
+Generic styles can be added here for easy reuse.
+*/
+
+@import './generic/forms.css';
+@import './generic/textedit.css';
+@import './generic/layouts.css';

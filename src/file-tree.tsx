@@ -212,7 +212,7 @@ function folderOptions(e: React.MouseEvent, folder: { child: Directory, meta: Me
         label: "Create file",
         icon: '\ue89c',
         action() {
-            prompt("Create file", "File name")
+            prompt("Create file", "File name", { heading: "Create file", p: "Enter the name for the file." })
                 .then(file => folder.child
                     .create(file))
                 .then(file => requestOpen(file));
@@ -223,7 +223,7 @@ function folderOptions(e: React.MouseEvent, folder: { child: Directory, meta: Me
         label: "Create folder",
         icon: '\ue2cc',
         action() {
-            prompt("Create folder", "Folder name")
+            prompt("Create folder", "Folder name", { heading: "Create folder", p: "Enter the name for the folder." })
                 .then(file => folder.child
                     .createDir(file));
         }
@@ -243,7 +243,10 @@ function folderOptions(e: React.MouseEvent, folder: { child: Directory, meta: Me
         label: 'Rename directory',
         icon: '\ue3c9',
         action() {
-            prompt("Rename directory", "Folder name", false)
+            prompt("Rename directory", "Folder name", {
+                heading: "Rename directory",
+                p: "Enter the new name for the directory."
+            }, false)
                 .then(file => folder.child.name = file);
         }
     });
@@ -269,7 +272,7 @@ function providerOptions(e: React.MouseEvent, provider: ResourceProvider) {
         label: "Create file",
         icon: '\ue89c',
         action() {
-            prompt("Create file", "File name")
+            prompt("Create file", "File name", { heading: "Create file", p: "Enter the name for the file." })
                 .then(file => provider
                     .create(ResourceUrl.fromParts(provider.id, []).append(file).components.path))
                 .then(file => requestOpen(file));
@@ -280,7 +283,7 @@ function providerOptions(e: React.MouseEvent, provider: ResourceProvider) {
         label: "Create folder",
         icon: '\ue2cc',
         action() {
-            prompt("Create folder", "Folder name")
+            prompt("Create folder", "Folder name", { heading: "Create folder", p: "Enter the name for the folder." })
                 .then(file => provider
                     .createDir(ResourceUrl.fromParts(provider.id, []).append(file).components.path));
         }
@@ -299,20 +302,37 @@ function providerOptions(e: React.MouseEvent, provider: ResourceProvider) {
     menu.show();
 }
 
-export function prompt(label: string, placeholder: string, allowSeparator = true): Promise<string> {
+export function prompt(label: string, placeholder: string, text: { heading?: string, p?: string } = {}, allowSeparator = true): Promise<string> {
     const modal = new Modal();
     return new Promise<string>(ok => modal
-        .show(<form onSubmit={e => {
+        .show(<form className={""}
+            onSubmit={e => {
             e.preventDefault();
             const name = e.currentTarget.elements.namedItem("name");
             setTimeout(() => modal.close());
             if (name instanceof HTMLInputElement)
                 return ok(name.value);
         }}>
-            <input name={"name"} placeholder={placeholder} type={"text"} pattern={allowSeparator ? '.*' : '[^/]*'} />
-            <Button variant={"primary"} icon={"\ue5ca"}>
-                {label}
-            </Button>
+            <div className={"header"}>
+                <h1>{text?.heading}</h1>
+                <p>{text?.p}</p>
+            </div>
+            <div className={"content"}>
+                <label>
+                    <span className={"widget-label"}>{placeholder}</span>
+                    <input name={"name"}
+                           className={"widget text-edit stretch"}
+                           placeholder={placeholder}
+                           type={"text"}
+                           inputMode={"none"}
+                           pattern={allowSeparator ? '.*' : '[^/]*'} />
+                </label>
+            </div>
+            <div className={"button-group force-inline actions"}>
+                <Button variant={"primary"} icon={"\ue5ca"}>
+                    {label}
+                </Button>
+            </div>
         </form>));
 }
 
