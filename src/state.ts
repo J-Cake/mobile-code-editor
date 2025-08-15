@@ -8,8 +8,9 @@ import Plugin from "./plugin.js";
 import OpenAsText from "./plugins/open-as-text.js";
 import {SettingsPlugin} from "./plugins/settings.js";
 import Build, {BuildStep, Group, Trigger} from "./plugins/build.js";
-import Workspace, {ChangeWorkspaceEvent} from "./workspace.js";
+import Workspace, {ChangeWorkspaceEvent, ProviderID, ResourceProvider} from "./workspace.js";
 import GestureResponder, {Gesture} from "./gesture-responder.js";
+import LocalFileResourceProvider from "./plugins/local-files.js";
 
 export interface Settings {
     excludeFiles: (string | RegExp)[]
@@ -39,8 +40,14 @@ export interface State {
         keybindings: {
             [key: string]: Command['id']
         }
-    }
+    },
+    resourceProviders: ResourceProviderFactory[],
 }
+
+export type ResourceProviderFactory = (new(id: ProviderID) => ResourceProvider) & {
+    display: string,
+};
+
 
 export interface ProjectState {
     build?: BuildState,
@@ -127,11 +134,13 @@ export class GlobalState extends EventTarget {
                 /\/\./
             ]
         },
-        plugins: [new OpenAsText, new SettingsPlugin, new Build],
+        plugins: [new OpenAsText, new SettingsPlugin, new Build, new LocalFileResourceProvider],
         commands: {
             registered: {},
             keybindings: {}
-        }
+        },
+
+        resourceProviders: []
     }
 
     #dbHandle?: idb.IDBPDatabase;

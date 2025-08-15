@@ -59,13 +59,17 @@
     grid-area: tab-list;
 
     width: 100%;
+    height: fit-content;
+    z-index: 4;
 
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
 
-    /*border-bottom: var(--border-dull);*/
+    box-sizing: border-box;
+
+    border-bottom: var(--border-dull);
 
     overflow-x: auto;
 }
@@ -84,10 +88,15 @@
     font-size: var(--font-size-s);
     color: var(--foreground-03);
 
-    /*border-bottom: var(--border-accent);*/
-    padding: var(--spacing-xs) var(--spacing-m);
+    padding: var(--spacing-xs);
+    padding-inline-start: var(--spacing-m);
 
     gap: var(--spacing-m);
+}
+
+.tab-layout-tab.active {
+    font-weight: bold;
+    border-bottom: var(--border-accent);
 }
 
 .tab-layout-tab > .button {

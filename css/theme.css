@@ -134,7 +134,7 @@
 
     --border-simple: var(--spacing-xxs) solid var(--foreground-03);
     --border-dull: 1px solid var(--foreground-05);
-    --border-accent: var(--spacing-xs) solid var(--accent);
+    --border-accent: 3px solid var(--accent);
 
     /* These radius values are used by widgets such as buttons and checkboxes */
     --widget-radius-s: var(--radius-xs);

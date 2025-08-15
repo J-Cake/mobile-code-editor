@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import state from "./state.js";
+import mgr from "./state.js";
 
 import style from "@css/file-tree.css?raw";
 import Button from "./widgets/button.js";
@@ -25,7 +25,7 @@ export const icons = {
 } satisfies Record<string, string>;
 
 export default function FileTree() {
-    const project = state.useMask(state => state.workspace);
+    const project = mgr.useMask(state => state.workspace);
 
     if (!project)
         return <span>{"Loading..."}</span>;
@@ -49,6 +49,30 @@ export default function FileTree() {
                         icon: '\ue2cc',
                         action() {
 
+                        }
+                    })
+                    .addOption({
+                        label: "Add file source to workspace",
+                        icon: '\ue1c3',
+                        action() {
+                            mgr.mutate(state => {
+                                const menu = new ContextMenu();
+
+                                menu.header("Add file source to workspace");
+
+                                console.log(state.resourceProviders)
+
+                                for (const provider of state.resourceProviders)
+                                    menu.addOption({
+                                        label: provider.display,
+                                        action() {
+                                            mgr.mutate(state => state.workspace?.resourceProviders?.push(new provider(state.workspace?.resourceProviders.length ?? 1)));
+                                            menu.close();
+                                        }
+                                    })
+
+                                menu.show();
+                            });
                         }
                     })
                     .addOption({
@@ -339,7 +363,7 @@ export function prompt(label: string, placeholder: string, text: { heading?: str
 export function requestOpen(entry: File) {
     const requestOpenEvent = new RequestOpenEvent(entry);
 
-    if (state.dispatchEvent(requestOpenEvent))
+    if (mgr.dispatchEvent(requestOpenEvent))
         console.warn(`File of type ${entry.url().ext()} cannot be opened.`);
 
     // const editor = new TextEditor(entry);

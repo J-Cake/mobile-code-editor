@@ -1,8 +1,12 @@
 .context-menu, .modal {
-	border: none;
 	outline: none;
 
-	padding: 0;
+	padding: var(--spacing-s);
+
+	border-radius: var(--radius-m);
+	border: var(--border-dull);
+
+	box-shadow: var(--shadow-m);
 
 	display: grid;
 

@@ -31,6 +31,11 @@ form > .content :is(label, .group, .widget) {
     grid-template-columns: subgrid;
 }
 
+form > .content label span {
+    font-size: var(--font-size-s);
+    font-weight: bold;
+}
+
 form > .actions {
     grid-area: actions;
 }

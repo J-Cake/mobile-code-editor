@@ -2,92 +2,7 @@ import mgr, {ProjectState, Settings} from "./state.js";
 import {EditorList} from "./viewport.js";
 
 export default class Workspace {
-    resourceProviders: ResourceProvider[] = [new class implements ResourceProvider {
-        id: ProviderID;
-        resources: WorkspaceDirectory;
-        name: string = "Workspace";
-
-        type() {
-            return {
-                name: this.name,
-                icon: '\uf3c8',
-                icon_open: '\uf3c8'
-            }
-        }
-
-        constructor() {
-            const id = this.id = 0;
-            this.resources = new class extends WorkspaceDirectory {
-                constructor() {
-                    super("/", null as any);
-                }
-
-                url(): ResourceUrl {
-                    return ResourceUrl.fromParts(id, []);
-                }
-            };
-        }
-
-        async get(nav: PathNavigationList): Promise<Resource> {
-            const url = ResourceUrl.fromParts(this.id, nav);
-
-            let res: Resource = this.resources;
-            for (const link of nav)
-                if (await isDirectory(res))
-                    res = await (<Directory>res).getChild(link);
-                else
-                    throw FileSystemError.navIntoFile(url.toString());
-
-            if (res)
-                return res;
-
-            throw FileSystemError.notFound(url.toString());
-        }
-
-        private async createDirRecursive(nav: PathNavigationList): Promise<Directory> {
-            const url = ResourceUrl.fromParts(this.id, nav);
-
-            let res: Resource = this.resources;
-            for (const link of nav)
-                if (await isDirectory(res) && !await (<Directory>res).exists(link))
-                    res = await (<Directory>res).createDir(link);
-
-                else if (await isFile(res))
-                    throw FileSystemError.navIntoFile(url.toString());
-
-                else
-                    throw FileSystemError.notFound(url.toString());
-
-            if (!await isDirectory(res))
-                throw FileSystemError.notADirectory(url.toString());
-
-            return <Directory>res;
-        }
-
-        async create(nav: PathNavigationList): Promise<File> {
-            return await this.createDirRecursive(nav.slice(0, -1))
-                .then(dir => dir.create(nav.at(-1)!));
-        }
-
-        async createDir(nav: PathNavigationList): Promise<Directory> {
-            return await this.createDirRecursive(nav);
-        }
-
-        async getMetadata(nav: PathNavigationList): Promise<Metadata> {
-            return await this.get(nav).then(res => res.metadata());
-        }
-
-        async remove(nav: PathNavigationList): Promise<void> {
-            const url = ResourceUrl.fromParts(this.id, nav);
-
-            const res = await this.get(nav.slice(0, -1));
-
-            if (!await isDirectory(res))
-                throw FileSystemError.notADirectory(url.toString());
-
-            return await (<Directory>res).remove(nav.at(-1)!);
-        }
-    }];
+    resourceProviders: ResourceProvider[] = [new WorkspaceResourceProvider(0)];
 
     settings: Settings = {excludeFiles: []};
     state: ProjectState;
@@ -224,14 +139,37 @@ export type NumBytes = Length;
 export type Path = string;
 export type PathNavigationList = string[];
 
-export interface ResourceProvider  {
-    id: ProviderID,
-    type(): { icon: string, icon_open: string, name: string }
-    get(nav: PathNavigationList): Promise<Resource>;
-    getMetadata(nav: PathNavigationList): Promise<Metadata>;
-    create(nav: PathNavigationList): Promise<File>;
-    createDir(nav: PathNavigationList): Promise<Directory>;
-    remove(nav: PathNavigationList): Promise<void>;
+export abstract class ResourceProvider  {
+    abstract type(): { icon: string, icon_open: string, name: string };
+
+    protected constructor(public readonly id: ProviderID) {}
+
+    abstract get(nav: PathNavigationList): Promise<Resource>
+    abstract createDirRecursive(nav: PathNavigationList): Promise<Directory>
+
+    async create(nav: PathNavigationList): Promise<File> {
+        return await this.createDirRecursive(nav.slice(0, -1))
+            .then(dir => dir.create(nav.at(-1)!));
+    }
+
+    async createDir(nav: PathNavigationList): Promise<Directory> {
+        return await this.createDirRecursive(nav);
+    }
+
+    async getMetadata(nav: PathNavigationList): Promise<Metadata> {
+        return await this.get(nav).then(res => res.metadata());
+    }
+
+    async remove(nav: PathNavigationList): Promise<void> {
+        const url = ResourceUrl.fromParts(this.id, nav);
+
+        const res = await this.get(nav.slice(0, -1));
+
+        if (!await isDirectory(res))
+            throw FileSystemError.notADirectory(url.toString());
+
+        return await (<Directory>res).remove(nav.at(-1)!);
+    }
 }
 
 export type Metadata = ({ type: 'file' } & FileMetadata) | ({ type: 'directory' } & DirectoryMetadata);
@@ -411,5 +349,68 @@ export class ResourceUrl {
 export class ChangeWorkspaceEvent extends Event {
     public constructor(public readonly workspace: Workspace) {
         super('change-workspace')
+    }
+}
+
+export class WorkspaceResourceProvider extends ResourceProvider {
+    resources: WorkspaceDirectory;
+    name: string = "Workspace";
+
+    type() {
+        return {
+            name: this.name,
+            icon: '\uf3c8',
+            icon_open: '\uf3c8'
+        }
+    }
+
+    constructor(id: ProviderID) {
+        super(id);
+
+        this.resources = new class extends WorkspaceDirectory {
+            constructor() {
+                super("/", null as any);
+            }
+
+            url(): ResourceUrl {
+                return ResourceUrl.fromParts(id, []);
+            }
+        };
+    }
+
+    async get(nav: PathNavigationList): Promise<Resource> {
+        const url = ResourceUrl.fromParts(this.id, nav);
+
+        let res: Resource = this.resources;
+        for (const link of nav)
+            if (await isDirectory(res))
+                res = await (<Directory>res).getChild(link);
+            else
+                throw FileSystemError.navIntoFile(url.toString());
+
+        if (res)
+            return res;
+
+        throw FileSystemError.notFound(url.toString());
+    }
+
+    async createDirRecursive(nav: PathNavigationList): Promise<Directory> {
+        const url = ResourceUrl.fromParts(this.id, nav);
+
+        let res: Resource = this.resources;
+        for (const link of nav)
+            if (await isDirectory(res) && !await (<Directory>res).exists(link))
+                res = await (<Directory>res).createDir(link);
+
+            else if (await isFile(res))
+                throw FileSystemError.navIntoFile(url.toString());
+
+            else
+                throw FileSystemError.notFound(url.toString());
+
+        if (!await isDirectory(res))
+            throw FileSystemError.notADirectory(url.toString());
+
+        return <Directory>res;
     }
 }
