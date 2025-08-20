@@ -60,16 +60,17 @@ export default function FileTree() {
 
                                 menu.header("Add file source to workspace");
 
-                                console.log(state.resourceProviders)
-
                                 for (const provider of state.resourceProviders)
                                     menu.addOption({
                                         label: provider.display,
                                         action() {
-                                            mgr.mutate(state => state.workspace?.resourceProviders?.push(new provider(state.workspace?.resourceProviders.length ?? 1)));
-                                            menu.close();
+                                            provider.init(state.workspace?.resourceProviders.length ?? 1)
+                                                .then(provider => {
+                                                    mgr.mutate(state => state.workspace?.resourceProviders?.push(provider));
+                                                    menu.close();
+                                                });
                                         }
-                                    })
+                                    });
 
                                 menu.show();
                             });

@@ -176,6 +176,7 @@ export type Metadata = ({ type: 'file' } & FileMetadata) | ({ type: 'directory' 
 
 export interface FileMetadata {
     size: NumBytes;
+    modified: Date
 }
 
 export interface DirectoryMetadata {
@@ -186,6 +187,7 @@ export class WorkspaceFile implements File {
     constructor(public name: string, readonly parent: Directory) {}
 
     private data: Uint8Array = new Uint8Array(0);
+    modified: Date = new Date();
 
     url(): ResourceUrl {
         const parent = this.parent.url();
@@ -195,7 +197,8 @@ export class WorkspaceFile implements File {
     metadata(): Promise<Metadata & FileMetadata> {
         return Promise.resolve({
             type: 'file',
-            size: this.data.length
+            size: this.data.length,
+            modified: this.modified
         } satisfies Metadata);
     }
 

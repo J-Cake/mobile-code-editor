@@ -44,8 +44,9 @@ export interface State {
     resourceProviders: ResourceProviderFactory[],
 }
 
-export type ResourceProviderFactory = (new(id: ProviderID) => ResourceProvider) & {
+export type ResourceProviderFactory<Provider extends ResourceProvider = ResourceProvider> = {
     display: string,
+    init: (id: ProviderID) => Promise<Provider>
 };
 
 
